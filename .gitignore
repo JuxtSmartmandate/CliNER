@@ -48,3 +48,7 @@ nosetests.xml
 *.fdb_latexmk
 *.synctex.gz
 paper.pdf
+
+# Config and logs
+config.txt
+log*.txt
