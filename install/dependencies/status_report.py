@@ -34,16 +34,16 @@ nltk_data = {
 def main():
 
     # Output package statuses
-    print '\nREQUIRED'
+    print('\nREQUIRED')
     display_status(required)
 
-    print '\nAUXILIARY'
+    print('\nAUXILIARY')
     display_status(auxiliary)
-    print
+    print()
 
-    print '\nNLTK DATA'
+    print('\nNLTK DATA')
     display_status(nltk_data)
-    print
+    print()
 
 
 
@@ -51,13 +51,13 @@ def main():
 def display_status(module2import):
     ''' Iterate through dictionary and display in pretty format '''
     installed = status_report(module2import)
-    print '\t|\t module-name\t    |   status    |'
-    print '\t|' + '-'*27 + '|' + '-' * 13 + '|'
-    for module in installed.keys():
+    print('\t|\t module-name\t    |   status    |')
+    print('\t|' + '-'*27 + '|' + '-' * 13 + '|')
+    for module in list(installed.keys()):
         if installed[module]:
-            print '\t|%-27s|  installed  |' % module
+            print('\t|%-27s|  installed  |' % module)
         else:
-            print '\t|%-27s|    ERROR    |'   % module
+            print('\t|%-27s|    ERROR    |'   % module)
 
 
 
@@ -75,7 +75,7 @@ def status_report(module2import):
 
     installed = {}
 
-    for module in module2import.keys():
+    for module in list(module2import.keys()):
 
         # Attempt to import module
         try:
