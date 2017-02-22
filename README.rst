@@ -1,3 +1,5 @@
+This is a fork of CliNER intended to work with Python 3.x and OSX
+
 ===============================
 CliNER
 ===============================
