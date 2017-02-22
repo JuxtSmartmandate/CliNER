@@ -20,10 +20,11 @@ def main():
     base = back(back(back(os.path.abspath(__file__))))
 
     if 'CliNER' not in os.path.basename(base):
-        print >>sys.stderr, "\n\tERROR: Do not move file print_cliner_dir.py\n"
+        print("\n\tERROR: Do not move file print_cliner_dir.py\n",
+              file=sys.stderr)
         exit(1)
     else:
-        print base
+        print(base)
 
 
 if __name__ == '__main__':

@@ -16,15 +16,17 @@ echo -e "\nSee genia installation details at: \n\t$GENIA_DIR/log_installation.tx
 
 # Get sources
 cd $CLINER_DIR/cliner/features_dir/genia_dir
-wget http://www.nactem.ac.uk/tsujii/GENIA/tagger/geniatagger-3.0.1.tar.gz &>> $log
-tar xzvf geniatagger-3.0.1.tar.gz &>> $log
+wget http://www.nactem.ac.uk/tsujii/GENIA/tagger/geniatagger-3.0.1.tar.gz
+tar xzvf geniatagger-3.0.1.tar.gz
 rm geniatagger-3.0.1.tar.gz
 
 # Build GENIA tagger
 cd geniatagger-3.0.1/
-echo "$(sed '1i#include <cstdlib>' morph.cpp)" > morph.cpp # fix build error
+echo "$(sed '1i\
+    #include <cstdlib>
+    ' morph.cpp)" > morph.cpp # fix build error
 echo "building GENIA tagger"
-make &>> $log
+make
 echo -e "GENIA tagger built\n"
 
 # Successful build ?
