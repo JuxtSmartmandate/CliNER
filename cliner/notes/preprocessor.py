@@ -57,8 +57,8 @@ class PreProcessor:
         return tokens
 
     def tokenizeListOfStrings(self, strings):
-	""" takes a list of strings and tokenizes them. returns a list of list of tokens """
-	return [self.tokenizeSentence(string) for string in strings]
+        """ takes a list of strings and tokenizes them. returns a list of list of tokens """
+        return [self.tokenizeSentence(string) for string in strings]
 
     def tokenizeInput(self, text):
         """ tokenize string of sentences into a list strings """

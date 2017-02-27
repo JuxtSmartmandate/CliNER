@@ -8,8 +8,8 @@
 
 
 
-import interface_genia
-from features_dir import utilities
+from cliner.features_dir.genia_dir import interface_genia
+from cliner.features_dir import utilities
 
 
 class GeniaFeatures:

@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 
 
 ######################################################################
@@ -20,10 +20,10 @@ import string
 from copy import copy
 
 
-from abstract_note       import AbstractNote
-from utilities_for_notes import classification_cmp, lineno_and_tokspan
+from .abstract_note       import AbstractNote
+from .utilities_for_notes import classification_cmp, lineno_and_tokspan
 
-from preprocessor 	 import PreProcessor
+from .preprocessor 	 import PreProcessor
 
 class Note_xml(AbstractNote):
 
@@ -32,7 +32,7 @@ class Note_xml(AbstractNote):
         self.data            = []  # list of list of tokens
         self.classifications = []  # list of concept tuples
         self.line_inds       = []  # list of (start,end) line character offsets
-	self.pre_processor   = PreProcessor()
+        self.pre_processor   = PreProcessor()
 	
     def getExtension(self):
         return 'xml'
@@ -92,8 +92,7 @@ class Note_xml(AbstractNote):
 
 
     def read(self, txt, con=None):
-
-	print "called xml read"
+        print("called xml read")
 
         """
         Note_xml::read()
@@ -126,7 +125,7 @@ class Note_xml(AbstractNote):
                 start = end
 
                 # Strip away non-printable characters
-                line = filter(lambda x: x in string.printable, line)
+                line = [x for x in line if x in string.printable]
 
                 # Add sentence to the data list
                 self.data.append(line.split() if con is not None else self.pre_processor.tokenizeSentence(line)) 
@@ -250,7 +249,7 @@ class Note_xml(AbstractNote):
             self.text = text
 
             # Split into lines
-            self.data = map(lambda s: s.split(), text.split('\n'))
+            self.data = [s.split() for s in text.split('\n')]
 
             # Tokenize each sentence into words (and save line number indices)
             toks = []

@@ -16,11 +16,11 @@ import os
 import sys
 import argparse
 import glob
-import helper
+from cliner import helper
 from copy import deepcopy
 
-from notes.note import Note
-from notes.note import concept_labels as labels
+from cliner.notes.note import Note
+from cliner.notes.note import concept_labels as labels
 
 def containsSpan(s1, s2):
     return (s1[0] <= s2[0]) and (s2[1] <= s1[1])
@@ -44,7 +44,7 @@ def getConceptSpans(boundaries, classifications):
                 beginning = boundaryIndex
                 end = boundaryIndex
 
-                if conceptSpans.has_key(lineIndex) == False:
+                if (lineIndex in conceptSpans) == False:
                     conceptSpans[lineIndex] = {}
 
                 for possibleEnd in span[boundaryIndex+1:]:
@@ -113,7 +113,7 @@ def evaluate(referenceSpans, predictedSpans, exactMatch=False, reportSeperately=
                     else:
 
                         overlap = False
-                        for pSpan,v in  predictedSpans[line].items():
+                        for pSpan,v in  list(predictedSpans[line].items()):
                             #if containsSpan(span, pSpan):
                             if spanOverlap(span, pSpan): # or spanOverlap(pSpan,span):
                                 overlap = True
@@ -219,19 +219,19 @@ def evaluate(referenceSpans, predictedSpans, exactMatch=False, reportSeperately=
 
 def displayMatrix(out, name, confusion):
     # Display the confusion matrix
-    print >>out, ""
-    print >>out, ""
-    print >>out, ""
-    print >>out, "================"
-    print >>out, name + " RESULTS"
-    print >>out, "================"
-    print >>out, ""
-    print >>out, "Confusion Matrix"
+    print("", file=out)
+    print("", file=out)
+    print("", file=out)
+    print("================", file=out)
+    print(name + " RESULTS", file=out)
+    print("================", file=out)
+    print("", file=out)
+    print("Confusion Matrix", file=out)
     pad = max(len(l) for l in labels) + 6
-    print >>out, "%s %s" % (' ' * pad, "\t".join(labels.keys()))
-    for act, act_v in labels.items():
-        print >>out, "%s %s" % (act.rjust(pad), "\t".join([str(confusion[act_v][pre_v]) for pre, pre_v in labels.items()]))
-    print >>out, ""
+    print("%s %s" % (' ' * pad, "\t".join(list(labels.keys()))), file=out)
+    for act, act_v in list(labels.items()):
+        print("%s %s" % (act.rjust(pad), "\t".join([str(confusion[act_v][pre_v]) for pre, pre_v in list(labels.items())])), file=out)
+    print("", file=out)
 
 
     # Compute the analysis stuff
@@ -245,18 +245,18 @@ def displayMatrix(out, name, confusion):
     fn = 0
     tn = 0
 
-    print >>out, "Analysis"
-    print >>out, " " * pad, "Precision\tRecall\tF1"
+    print("Analysis", file=out)
+    print(" " * pad, "Precision\tRecall\tF1", file=out)
 
     #print confusion
 
     #print labels.items()
-    for lab, lab_v in labels.items():
+    for lab, lab_v in list(labels.items()):
         if lab == 'none': continue
 
         tp = confusion[lab_v][lab_v]
-        fp = sum(confusion[v][lab_v] for k, v in labels.items() if v != lab_v)
-        fn = sum(confusion[lab_v][v] for k, v in labels.items() if v != lab_v)
+        fp = sum(confusion[v][lab_v] for k, v in list(labels.items()) if v != lab_v)
+        fn = sum(confusion[lab_v][v] for k, v in list(labels.items()) if v != lab_v)
 
         """
         print lab
@@ -304,9 +304,9 @@ def displayMatrix(out, name, confusion):
         print f1
         """
 
-        print >>out, "%s %.4f\t%.4f\t%.4f" % (lab.rjust(pad), precision[-1], recall[-1], f1[-1])
+        print("%s %.4f\t%.4f\t%.4f" % (lab.rjust(pad), precision[-1], recall[-1], f1[-1]), file=out)
 
-    print >>out, "--------"
+    print("--------", file=out)
 
     """
     print "precision: ", precision
@@ -318,7 +318,7 @@ def displayMatrix(out, name, confusion):
     recall = sum(recall) / len(recall)
     f1 = sum(f1) / len(f1)
 
-    print >>out, "Average: %.4f\t%.4f\t%.4f" % (precision, recall, f1)
+    print("Average: %.4f\t%.4f\t%.4f" % (precision, recall, f1), file=out)
 
 
 
@@ -389,7 +389,7 @@ def main():
     if args.format:
         format = args.format
     else:
-        print '\n\tERROR: must provide "format" argument\n'
+        print('\n\tERROR: must provide "format" argument\n')
         exit()
 
 
@@ -402,9 +402,9 @@ def main():
 
     # Must specify output format
     if format not in Note.supportedFormats():
-        print >>sys.stderr, '\n\tError: Must specify output format'
-        print >>sys.stderr,   '\tAvailable formats: ', ' | '.join(Note.supportedFormats())
-        print >>sys.stderr, ''
+        print('\n\tError: Must specify output format', file=sys.stderr)
+        print('\tAvailable formats: ', ' | '.join(Note.supportedFormats()), file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
 
 
@@ -492,33 +492,33 @@ def main():
             for i,int2 in enumerate(sublist2):
                 sublist1[i] += int2
 
-    print "\nResults for exact span for concepts together.\n"
+    print("\nResults for exact span for concepts together.\n")
 
-    print "True Positives: ", truePositivesExactSpan
-    print "False Negatives: ", falseNegativesExactSpan
-    print "False Positives: ", falsePositivesExactSpan
+    print("True Positives: ", truePositivesExactSpan)
+    print("False Negatives: ", falseNegativesExactSpan)
+    print("False Positives: ", falsePositivesExactSpan)
 
     exactSpan = generateResultsForExactSpans(truePositivesExactSpan,
                                  falseNegativesExactSpan,
                                  falsePositivesExactSpan)
 
-    print "Recall: ", exactSpan["Recall"]
-    print "Precision: ", exactSpan["Precision"]
-    print "F Measure: ", exactSpan["F Score"]
+    print("Recall: ", exactSpan["Recall"])
+    print("Precision: ", exactSpan["Precision"])
+    print("F Measure: ", exactSpan["F Score"])
 
     inexactSpan = generateResultsForExactSpans(truePositivesInexactSpan,
                                  falseNegativesInexactSpan,
                                  falsePositivesInexactSpan)
 
-    print "\nResults for inexact span for concepts together.\n"
+    print("\nResults for inexact span for concepts together.\n")
 
-    print "True Positives: ", truePositivesInexactSpan
-    print "False Negatives: ", falseNegativesInexactSpan
-    print "False Positives: ", falsePositivesInexactSpan
+    print("True Positives: ", truePositivesInexactSpan)
+    print("False Negatives: ", falseNegativesInexactSpan)
+    print("False Positives: ", falsePositivesInexactSpan)
 
-    print "Recall: ", inexactSpan["Recall"]
-    print "Precision: ", inexactSpan["Precision"]
-    print "F Measure: ", inexactSpan["F Score"]
+    print("Recall: ", inexactSpan["Recall"])
+    print("Precision: ", inexactSpan["Precision"])
+    print("F Measure: ", inexactSpan["F Score"])
 
     #TO DO: ENSURE NUMBER OF FP,FN,TP is equal to number of predicted spans
     #TO DO: number of FP, FN, TP is not same between exact and inexact.

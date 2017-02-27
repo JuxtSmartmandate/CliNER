@@ -15,16 +15,16 @@ import os
 import sys
 import glob
 import argparse
-import helper
+from cliner import helper
 import re
 import string
 import time
 import itertools
-import cPickle as pickle
+import pickle as pickle
 import copy
 
-from model import Model
-from notes.note import Note
+from cliner.model import Model
+from cliner.notes.note import Note
 from multiprocessing import Pool
 
 sys.path.append(os.path.join(*[os.environ["CLINER_DIR"], "cliner", "features_dir"]))
@@ -81,16 +81,16 @@ def main():
 
     # Error check: Ensure that file paths are specified
     if not args.input:
-        print >>sys.stderr, '\n\tError: Must provide text files\n'
+        print('\n\tError: Must provide text files\n', file=sys.stderr)
         exit(1)
     if not args.output:
-        print >>sys.stderr, '\n\tError: Must provide output directory\n'
+        print('\n\tError: Must provide output directory\n', file=sys.stderr)
         exit(1)
     if not args.model:
-        print >>sys.stderr, '\n\tError: Must provide path to model\n'
+        print('\n\tError: Must provide path to model\n', file=sys.stderr)
         exit(1)
     if not os.path.exists(args.model):
-        print >>sys.stderr, '\n\tError: Model does not exist: %s\n' % args.model
+        print('\n\tError: Model does not exist: %s\n' % args.model, file=sys.stderr)
         exit(1)
 
 
@@ -103,7 +103,7 @@ def main():
     if args.format:
         format = args.format
     else:
-        print '\n\tERROR: must provide "format" argument\n'
+        print('\n\tERROR: must provide "format" argument\n')
         exit()
 
     if third is True and args.format == "i2b2":
@@ -111,7 +111,7 @@ def main():
 
     # Tell user if not predicting
     if not files:
-        print >>sys.stderr, "\n\tNote: You did not supply any input files\n"
+        print("\n\tNote: You did not supply any input files\n", file=sys.stderr)
         exit()
 
     # Predict
@@ -124,9 +124,9 @@ def predict(files, model_path, output_dir, format, third=False, disambiguate=Fal
 
     # Must specify output format
     if format not in Note.supportedFormats():
-        print >>sys.stderr, '\n\tError: Must specify output format'
-        print >>sys.stderr,   '\tAvailable formats: ', ' | '.join(Note.supportedFormats())
-        print >>sys.stderr, ''
+        print('\n\tError: Must specify output format', file=sys.stderr)
+        print('\tAvailable formats: ', ' | '.join(Note.supportedFormats()), file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
 
 
@@ -136,11 +136,11 @@ def predict(files, model_path, output_dir, format, third=False, disambiguate=Fal
 
     # Tell user if not predicting
     if not files:
-        print >>sys.stderr, "\n\tNote: You did not supply any input files\n"
+        print("\n\tNote: You did not supply any input files\n", file=sys.stderr)
         exit()
 
     if enabled["UMLS"] is not None and disambiguate is True:
-        from disambiguation import cui_disambiguation
+        from .disambiguation import cui_disambiguation
 
     # For each file, predict concept labels
     n = len(files)
@@ -169,15 +169,15 @@ def predict(files, model_path, output_dir, format, third=False, disambiguate=Fal
         # TODO: make a flag to enable or disable looking up concept ids.
         if format == "semeval":
 
-            print "\nencoding concept ids"
+            print("\nencoding concept ids")
             if enabled["UMLS"] is not None and disambiguate is True:
                 output = cui_disambiguation.disambiguate(output, txt, model.get_cui_freq())
 
         # Output the concept predictions
-        print '\n\nwriting to: ', out_path
+        print('\n\nwriting to: ', out_path)
         with open(out_path, 'w') as f:
-            print >>f, output
-        print
+            print(output, file=f)
+        print()
 
 
 if __name__ == '__main__':

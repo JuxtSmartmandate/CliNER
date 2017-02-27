@@ -9,7 +9,7 @@
 
 import os
 
-import features
+from cliner.features_dir import features
 
 
 
@@ -32,13 +32,13 @@ def test_prose_sentence():
     nonprose = []
     for s in sents:
         if features.prose_sentence(s):
-            print 'prose'
-            print '\t', ' '.join(s)
-            print 
+            print('prose')
+            print('\t', ' '.join(s))
+            print() 
         else:
-            print 'nonprose'
-            print '\t', ' '.join(s)
-            print 
+            print('nonprose')
+            print('\t', ' '.join(s))
+            print() 
 
 
 

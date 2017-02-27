@@ -1,31 +1,32 @@
-from __future__ import with_statement
+
 
 from sklearn.feature_extraction  import DictVectorizer
 
-import features_dir.features as feat_obj
+from cliner.features_dir import features as feat_obj
 
-from features_dir.utilities import load_pickled_obj, is_prose_sentence
-from features_dir.BagOfWords import BagOfWords
-from features_dir.read_config import enabled_modules
+from cliner.features_dir.utilities import load_pickled_obj, is_prose_sentence
+from cliner.features_dir.BagOfWords import BagOfWords
+from cliner.features_dir.read_config import enabled_modules
 
-from machine_learning import sci
-from machine_learning import crf
+from cliner.machine_learning import sci
+from cliner.machine_learning import crf
 
-from notes.note import concept_labels, reverse_concept_labels
-from notes.note import     IOB_labels,     reverse_IOB_labels
-from tools      import flatten, save_list_structure, reconstruct_list
+from cliner.notes.note import concept_labels, reverse_concept_labels
+from cliner.notes.note import     IOB_labels,     reverse_IOB_labels
+from cliner.tools      import flatten, save_list_structure, reconstruct_list
 
 from collections import defaultdict
 
 # Stores the verbosity
-import globals_cliner
+from . import globals_cliner
 import numpy as np
+from functools import reduce
 
 if enabled_modules()["WORD2VEC"]:
 
-    from features_dir.word2vec_dir import clustering
-    from features_dir.word2vec_dir.ngrams import get_char_gram_mappings
-    from features_dir.word2vec_dir.clustering import get_sequence_vector_clusters
+    from .features_dir.word2vec_dir import clustering
+    from .features_dir.word2vec_dir.ngrams import get_char_gram_mappings
+    from .features_dir.word2vec_dir.clustering import get_sequence_vector_clusters
 
 
 class Model:
@@ -142,7 +143,7 @@ class Model:
 
         # First pass (IOB Chunking)
         if globals_cliner.verbosity > 0:
-            print 'first pass'
+            print('first pass')
 
         # Extract formatted data
         tokenized_sentences =  first_pass_data(note)
@@ -153,7 +154,7 @@ class Model:
 
         # Second pass (concept labels)
         if globals_cliner.verbosity > 0:
-            print 'second pass'
+            print('second pass')
 
         # Extract formatted data
         chunked_sentences, inds = second_pass_data(note)
@@ -169,7 +170,7 @@ class Model:
             if do_third is True:
 
                 if globals_cliner.verbosity > 0:
-                    print 'third pass'
+                    print('third pass')
                 clustered = self.__third_predict(chunked_sentences, classifications, inds)
                 result = clustered
 
@@ -201,12 +202,12 @@ class Model:
         @return          None
         """
 
-        if globals_cliner.verbosity > 0: print 'first pass'
-        if globals_cliner.verbosity > 0: print '\textracting  features (pass one)'
+        if globals_cliner.verbosity > 0: print('first pass')
+        if globals_cliner.verbosity > 0: print('\textracting  features (pass one)')
 
         # Seperate into prose v nonprose
-        nested_prose_data   ,    nested_prose_Y = zip(*filter(lambda line_iob_tup:     is_prose_sentence(line_iob_tup[0]), zip(tokenized_sentences,Y) ))
-        nested_nonprose_data, nested_nonprose_Y = zip(*filter(lambda line_iob_tup: not is_prose_sentence(line_iob_tup[0]), zip(tokenized_sentences,Y) ))
+        nested_prose_data   ,    nested_prose_Y = list(zip(*[line_iob_tup for line_iob_tup in zip(tokenized_sentences,Y) if is_prose_sentence(line_iob_tup[0])]))
+        nested_nonprose_data, nested_nonprose_Y = list(zip(*[line_iob_tup for line_iob_tup in zip(tokenized_sentences,Y) if not is_prose_sentence(line_iob_tup[0])]))
 
 
         #extract features
@@ -258,12 +259,12 @@ class Model:
         @return          None
         """
 
-        if globals_cliner.verbosity > 0: print 'second pass'
+        if globals_cliner.verbosity > 0: print('second pass')
 
 
         # Extract features
         if globals_cliner.verbosity > 0:
-            print '\textracting  features (pass two)'
+            print('\textracting  features (pass two)')
 
         text_features = [ feat_obj.concept_features(s,inds) for s,inds in zip(chunked_data,inds_list) ]
 
@@ -271,7 +272,7 @@ class Model:
 
 
         if globals_cliner.verbosity > 0:
-            print '\tvectorizing features (pass two)'
+            print('\tvectorizing features (pass two)')
 
         # Vectorize labels
         numeric_labels = [  concept_labels[y]  for  y  in  con_labels  ]
@@ -281,7 +282,7 @@ class Model:
         vectorized_features = self._second_vec.fit_transform(flattened_text_features)
 
         if globals_cliner.verbosity > 0:
-            print '\ttraining  classifier (pass two)'
+            print('\ttraining  classifier (pass two)')
 
         # Train the model
         self._second_clf = sci.train(vectorized_features,numeric_labels,do_grid)
@@ -291,9 +292,9 @@ class Model:
 
     def __third_train(self, tokenized_sentences, notes, do_grid):
 
-        print 'third pass'
+        print('third pass')
 
-        print '\textracting  features (pass three)'
+        print('\textracting  features (pass three)')
         # Get data and annotations of which spans actaully should be grouped
         classifications = []
         chunks = []
@@ -329,7 +330,7 @@ class Model:
         # Extract features between pairs of chunks
         unvectorized_X = feat_obj.extract_third_pass_features(chunks, inds, bow=self.bow)
 
-        print '\tvectorizing features (pass three)'
+        print('\tvectorizing features (pass three)')
 
         # Construct boolean vector of annotations
         Y = []
@@ -358,7 +359,7 @@ class Model:
         # Vectorize features
         X = self.third_vec.fit_transform(unvectorized_X)
 
-        print '\ttraining classifier  (pass three)'
+        print('\ttraining classifier  (pass three)')
 
         # Train classifier
         self.third_clf = sci.train(X, Y, do_grid, default_label=0)
@@ -375,11 +376,11 @@ class Model:
         @return       A list of list of IOB labels (1:1 mapping with data)
         """
 
-        if globals_cliner.verbosity > 0:print '\textracting  features (pass one)'
+        if globals_cliner.verbosity > 0:print('\textracting  features (pass one)')
 
         # Seperate into
-        nested_prose_data    = filter(lambda line:     is_prose_sentence(line), data)
-        nested_nonprose_data = filter(lambda line: not is_prose_sentence(line), data)
+        nested_prose_data    = [line for line in data if is_prose_sentence(line)]
+        nested_nonprose_data = [line for line in data if not is_prose_sentence(line)]
 
         # Parition into prose v. nonprose
         nested_prose_feats    = feat_obj.IOB_prose_features(      nested_prose_data)
@@ -405,11 +406,11 @@ class Model:
                 iobs.append( [] )
             elif is_prose_sentence(sentence):
                 prose_iobs.append( plist.pop(0) )
-                prose_iobs[-1] = map(num2iob, prose_iobs[-1])
+                prose_iobs[-1] = list(map(num2iob, prose_iobs[-1]))
                 iobs.append( prose_iobs[-1] )
             else:
                 nonprose_iobs.append( nlist.pop(0) )
-                nonprose_iobs[-1] = map(num2iob, nonprose_iobs[-1])
+                nonprose_iobs[-1] = list(map(num2iob, nonprose_iobs[-1]))
                 iobs.append( nonprose_iobs[-1] )
 
         # list of list of IOB labels
@@ -423,27 +424,27 @@ class Model:
         # If first pass predicted no concepts, then skip
         # NOTE: Special case because SVM cannot have empty input
         if sum([ len(inds) for inds in inds_list ]) == 0:
-            print "first pass predicted no concepts, skipping second pass"
+            print("first pass predicted no concepts, skipping second pass")
             return []
 
         # Create object that is a wrapper for the features
-        if globals_cliner.verbosity > 0: print '\textracting  features (pass two)'
+        if globals_cliner.verbosity > 0: print('\textracting  features (pass two)')
 
-        print '\textracting  features (pass two)'
+        print('\textracting  features (pass two)')
 
         # Extract features
         text_features = [ feat_obj.concept_features(s,inds) for s,inds in zip(chunked_sentences,inds_list) ]
         flattened_text_features = flatten(text_features)
 
 
-        print '\tvectorizing features (pass two)'
+        print('\tvectorizing features (pass two)')
 
-        if globals_cliner.verbosity > 0: print '\tvectorizing features (pass two)'
+        if globals_cliner.verbosity > 0: print('\tvectorizing features (pass two)')
 
         # Vectorize features
         vectorized_features = self._second_vec.transform(flattened_text_features)
 
-        if globals_cliner.verbosity > 0: print '\tpredicting    labels (pass two)'
+        if globals_cliner.verbosity > 0: print('\tpredicting    labels (pass two)')
 
         # Predict concept labels
         out = sci.predict(self._second_clf, vectorized_features)
@@ -479,17 +480,17 @@ class Model:
 
     def __third_predict(self, chunks, classifications, inds):
 
-        print '\textracting  features (pass three)'
+        print('\textracting  features (pass three)')
 
         # Extract features between pairs of chunks
         unvectorized_X = feat_obj.extract_third_pass_features(chunks, inds, bow=self.bow)
 
-        print '\tvectorizing features (pass three)'
+        print('\tvectorizing features (pass three)')
 
         # Vectorize features
         X = self.third_vec.transform(unvectorized_X)
 
-        print '\tpredicting    labels (pass three)'
+        print('\tpredicting    labels (pass three)')
 
         # Predict concept labels
         predicted_relationships = sci.predict(self.third_clf, X)
@@ -525,7 +526,7 @@ class Model:
                 # ASSUMPTION: All classifications have same label
                 concept = tups[0][0]
                 lineno = tups[0][1]
-                spans = map(lambda t:t[2][0], tups)
+                spans = [t[2][0] for t in tups]
 
                 # Keep track of non-clustered spans
                 singulars = list(tups)
@@ -578,7 +579,7 @@ class Model:
         # Save list structure to reconstruct after vectorization
         offsets = save_list_structure(text_features)
 
-        if globals_cliner.verbosity > 0: print '\tvectorizing features (pass one) ' + p_or_n
+        if globals_cliner.verbosity > 0: print('\tvectorizing features (pass one) ' + p_or_n)
 
         #X = reconstruct_list(flatten(text_features), offsets)
         #Y = reconstruct_list(        Y_labels      , offsets)
@@ -602,7 +603,7 @@ class Model:
         else:
             lib = sci
 
-        if globals_cliner.verbosity > 0: print '\ttraining classifiers (pass one) ' + p_or_n
+        if globals_cliner.verbosity > 0: print('\ttraining classifiers (pass one) ' + p_or_n)
 
         #for i,X in enumerate(X_feats):
         #    for j,x in enumerate(X):
@@ -633,18 +634,18 @@ class Model:
 
         # If nothing to predict, skip actual prediction
         if len(text_features) == 0:
-            print '\tnothing to predict (pass one) ' + p_or_n
+            print('\tnothing to predict (pass one) ' + p_or_n)
             return []
 
         # Save list structure to reconstruct after vectorization
         offsets = save_list_structure(text_features)
 
-        if globals_cliner.verbosity > 0: print '\tvectorizing features (pass one) ' + p_or_n
+        if globals_cliner.verbosity > 0: print('\tvectorizing features (pass one) ' + p_or_n)
 
         # Vectorize features
         X_feats = dvect.transform( flatten(text_features) )
 
-        if globals_cliner.verbosity > 0: print '\tpredicting    labels (pass one) ' + p_or_n
+        if globals_cliner.verbosity > 0: print('\tpredicting    labels (pass one) ' + p_or_n)
 
         # CRF requires reconstruct lists
         if self._crf_enabled:

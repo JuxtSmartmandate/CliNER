@@ -20,7 +20,8 @@ from copy import copy
 import nltk.data
 import os.path
 
-from utilities_for_notes import lineno_and_tokspan
+from cliner.notes.utilities_for_notes import lineno_and_tokspan
+import cliner
 
 # Master Class
 class Note:
@@ -30,15 +31,15 @@ class Note:
     dict_of_format_to_extensions = []
 
     # Constructor
-    def __init__(self, format):
+    def __init__(self, _format):
 
         # Error-check input
-        if format not in Note.supportedFormats():
-            raise Exception('Cannot create Note object for format %s' % format)
+        if _format not in Note.supportedFormats():
+            raise Exception('Cannot create Note object for format %s' % _format)
 
         # Instantiate the given format derived class
-        cmd = 'from note_%s import Note_%s as DerivedNote' % (format,format)
-        exec(cmd)
+        notes_module = getattr(cliner.notes, "note_{}".format(_format))
+        DerivedNote = getattr(notes_module, "Note_{}".format(_format))
         self.derived_note = DerivedNote()
 
         # Helpful for debugging
@@ -91,7 +92,7 @@ class Note:
         extensions = {}
         for format in Note.supportedFormats():
             # Import next note format
-            cmd1 = 'from note_%s import Note_%s' % (format,format)
+            cmd1 = 'from cliner.notes.note_%s import Note_%s' % (format,format)
             exec(cmd1)
 
             # Get extension for note

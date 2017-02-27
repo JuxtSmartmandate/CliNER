@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 
 
 ######################################################################
@@ -14,14 +14,15 @@ __author__ = 'Willie Boag'
 __date__   = 'Nov. 6, 2014'
 
 
+from functools import cmp_to_key
 import string
 import re
 import nltk
 import os
 
-from abstract_note import AbstractNote
-from utilities_for_notes import classification_cmp, lineno_and_tokspan
-from utilities_for_notes import NoteException
+from .abstract_note import AbstractNote
+from .utilities_for_notes import classification_cmp, lineno_and_tokspan
+from .utilities_for_notes import NoteException
 
 
 
@@ -43,7 +44,7 @@ class Note_i2b2(AbstractNote):
 
 
     def getTokenizedSentences(self):
-        return map(lambda s: (' '.join(s)).split(), self.data)
+        return [(' '.join(s)).split() for s in self.data]
 
 
     def getClassificationTuples(self):
@@ -101,7 +102,7 @@ class Note_i2b2(AbstractNote):
 
     def read_standard(self, txt, con=None):
 
-        print 'ERROR: MAKE SURE TOKENIZATION IN READ_STANDARD()'
+        print('ERROR: MAKE SURE TOKENIZATION IN READ_STANDARD()')
         exit()
 
 
@@ -156,7 +157,7 @@ class Note_i2b2(AbstractNote):
                 start = end
 
                 # FIXME - Should we be removing unprintable?
-                sent = ''.join(map(lambda x: x if (x in string.printable) else '@', sentence))
+                sent = ''.join([x if (x in string.printable) else '@' for x in sentence])
                 self.data.append(word_tokenize(sent))
 
                 #i += 1
@@ -221,7 +222,7 @@ class Note_i2b2(AbstractNote):
 
             # Concept file does not guarantee ordering by line number
             self.classifications = sorted(classifications,
-                                          cmp=classification_cmp)
+                                          key=cmp_to_key(classification_cmp))
 
             # TODO - eliminate minor spans which are subsumed
             # Detect subsumed concept spans

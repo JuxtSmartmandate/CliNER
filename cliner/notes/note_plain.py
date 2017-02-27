@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 
 ######################################################################
 #  CliNER - note_plain.py                                            #
@@ -18,10 +18,10 @@ import sys
 import re
 import nltk
 
-from abstract_note import AbstractNote
-from utilities_for_notes import concept_cmp, classification_cmp
-from utilities_for_notes import lineno_and_tokspan, lno_and_tokspan__to__char_span
-from utilities_for_notes import WordTokenizer, SentenceTokenizer
+from .abstract_note import AbstractNote
+from .utilities_for_notes import concept_cmp, classification_cmp
+from .utilities_for_notes import lineno_and_tokspan, lno_and_tokspan__to__char_span
+from .utilities_for_notes import WordTokenizer, SentenceTokenizer
 
 
 word_tokenizer =     WordTokenizer()
@@ -66,7 +66,7 @@ class Note_plain(AbstractNote):
 
     def read_standard(self, txt, con=None):
 
-        print 'ERROR: MAKE SURE TOKENIZATION IN READ_STANDARD()'
+        print('ERROR: MAKE SURE TOKENIZATION IN READ_STANDARD()')
         exit()
 
         start = 0
@@ -79,7 +79,7 @@ class Note_plain(AbstractNote):
             self.text = text
 
             # Split into lines
-            self.data = map(lambda s: s.split(), text.split('\n'))
+            self.data = [s.split() for s in text.split('\n')]
 
             # Tokenize each sentence into words (and save line number indices)
             toks = []
@@ -159,7 +159,7 @@ class Note_plain(AbstractNote):
         with open(txt) as f:
             # Original text file
             text = f.read().strip('\n')
-            self.text = filter(lambda x: x in string.printable, text)
+            self.text = [x for x in text if x in string.printable]
 
             i = 0
             sentences = sent_tokenize(self.text)
@@ -193,7 +193,7 @@ class Note_plain(AbstractNote):
                 start = end
 
                 # FIXME - Should we be removing unprintable?
-                sentence = filter(lambda x: x in string.printable, sentence)
+                sentence = [x for x in sentence if x in string.printable]
                 self.data.append(word_tokenize(sentence))
 
                 #i += 1

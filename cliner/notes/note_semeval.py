@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 
 
 ######################################################################
@@ -23,8 +23,9 @@ import os.path
 import os
 import sys
 
-from utilities_for_notes import concept_cmp, SentenceTokenizer, WordTokenizer, lno_and_tokspan__to__char_span, lineno_and_tokspan, remove_non_ascii
-from abstract_note       import AbstractNote
+from .utilities_for_notes import concept_cmp, SentenceTokenizer, WordTokenizer, lno_and_tokspan__to__char_span, lineno_and_tokspan, remove_non_ascii
+from .abstract_note       import AbstractNote
+from functools import reduce
 
 #CLINER_PATH = os.environ["CLINER_DIR"]
 #OPEN_NLP_PATH = CLINER_PATH + "/cliner/lib/java/openNLP"
@@ -335,12 +336,12 @@ class Note_semeval(AbstractNote):
 
             # Hack: Throw away subsumed spans
             # ex. "left and right atrial dilitation" from 02136-017465.text
-            classifs = reduce(lambda a,b: a+b,map(lambda t:t[1],classifications))
+            classifs = reduce(lambda a,b: a+b,[t[1] for t in classifications])
             classifs = list(set(classifs))
             classifs = sorted(classifs, key=lambda s:s[0])
             #print classifs
 
-            from utilities_for_notes import span_relationship
+            from .utilities_for_notes import span_relationship
 
             newClassifications = []
             for c in classifications:
@@ -444,11 +445,11 @@ class Note_semeval(AbstractNote):
         return retStr[0:-1]
 
 if __name__ == "__main__":
-    Note_semeval().read(input())
+    Note_semeval().read(eval(input()))
 
-    print os.getcwd()
+    print((os.getcwd()))
 
-    print "done"
+    print("done")
 
 
 

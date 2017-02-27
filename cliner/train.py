@@ -15,14 +15,13 @@ import os
 import os.path
 import glob
 import argparse
-import cPickle as pickle
+import pickle as pickle
 import sys
 
-import helper
-from sets import Set
-from model import Model
-from notes.note import Note
-from notes.utilities_for_notes import NoteException
+from cliner import helper
+from cliner.model import Model
+from cliner.notes.note import Note
+from cliner.notes.utilities_for_notes import NoteException
 
 sys.path.append(os.path.join(*[os.environ["CLINER_DIR"], "cliner", "features_dir"]))
 
@@ -33,7 +32,7 @@ enabled = enabled_modules()
 
 if enabled["UMLS"]:
 
-    from disambiguation import cui_disambiguation
+    from .disambiguation import cui_disambiguation
 
 def main():
     parser = argparse.ArgumentParser()
@@ -96,21 +95,21 @@ def main():
 
     # Error check: Ensure that file paths are specified
     if not args.txt:
-        print >>sys.stderr, '\n\tError: Must provide text files'
-        print >>sys.stderr,  ''
+        print('\n\tError: Must provide text files', file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
     if not args.con:
-        print >>sys.stderr, '\n\tError: Must provide annotations for text files'
-        print >>sys.stderr,  ''
+        print('\n\tError: Must provide annotations for text files', file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
     if not args.model:
-        print >>sys.stderr, '\n\tError: Must provide valid path to store model'
-        print >>sys.stderr,  ''
+        print('\n\tError: Must provide valid path to store model', file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
     modeldir = os.path.dirname(args.model)
     if (not os.path.exists(modeldir)) and (modeldir != ''):
-        print >>sys.stderr, '\n\tError: Model dir does not exist: %s' % modeldir
-        print >>sys.stderr,  ''
+        print('\n\tError: Model dir does not exist: %s' % modeldir, file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
 
     if "PY4J_DIR_PATH" not in os.environ and args.third is True:
@@ -127,7 +126,7 @@ def main():
     if args.format:
         format = args.format
     else:
-        print '\n\tERROR: must provide "format" argument\n'
+        print('\n\tERROR: must provide "format" argument\n')
         exit()
 
     if third is True and args.format == "i2b2":
@@ -135,9 +134,9 @@ def main():
 
     # Must specify output format
     if format not in Note.supportedFormats():
-        print >>sys.stderr, '\n\tError: Must specify output format'
-        print >>sys.stderr,   '\tAvailable formats: ', ' | '.join(Note.supportedFormats())
-        print >>sys.stderr, ''
+        print('\n\tError: Must specify output format', file=sys.stderr)
+        print('\tAvailable formats: ', ' | '.join(Note.supportedFormats()), file=sys.stderr)
+        print('', file=sys.stderr)
         exit(1)
 
 
@@ -179,7 +178,7 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
 
     # file names
     if not notes:
-        print 'Error: Cannot train on 0 files. Terminating train.'
+        print('Error: Cannot train on 0 files. Terminating train.')
         return 1
 
     # Create a Machine Learning model
@@ -193,7 +192,7 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
     model.train(notes, grid, do_third=third)
 
     # Pickle dump
-    print '\nserializing model to %s\n' % model_path
+    print('\nserializing model to %s\n' % model_path)
     with open(model_path, "wb") as m_file:
         pickle.dump(model, m_file)
 

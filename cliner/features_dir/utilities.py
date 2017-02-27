@@ -8,7 +8,7 @@
 
 
 import re
-import cPickle as pickle
+import pickle
 import os
 
 
@@ -18,13 +18,10 @@ pos_tagger_path = os.path.join( os.environ['CLINER_DIR'], "cliner/features_dir/t
 
 def load_pickled_obj(path_to_pickled_obj):
 
-    data = None
-
     with open(path_to_pickled_obj, "rb") as f:
+        data = pickle.load(f, encoding='latin-1')
 
-        data = f.read()
-
-    return pickle.loads(data)
+    return data
 
 def pickle_dump(obj, path_to_obj):
 
