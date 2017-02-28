@@ -45,27 +45,27 @@ def enabled_modules():
                     specs[words[0]] = os.path.expandvars(words[1]).strip('\"').strip('\'')
 
     # check if paths are actually valid
-    if specs["GENIA"] is not None:
+    if "GENIA" in specs:
 
         if os.path.isfile(specs["GENIA"]) is False:
             sys.exit("Invalid path to genia executable.")
 
-    if specs["UMLS"] is not None:
+    if "UMLS" in specs:
 
         if os.path.isdir(specs["UMLS"]) is False:
             sys.exit("Invalid path to directory containing UMLS database tables.")
 
-    if specs["BROWN"] is not None:
+    if "BROWN" in specs:
 
         if os.path.isfile(specs["BROWN"]) is False:
             sys.exit("Invalid path to generated brown clusters.")
 
-    if specs["PY4J"] is not None:
+    if "PY4J" in specs:
 
         if os.path.isfile(specs["PY4J"]) is False:
             sys.exit("Invalid path to py4j0.x.jar, consult https://www.py4j.org/install.html to locate it.")
 
-    if specs["WORD2VEC"] is not None:
+    if "WORD2VEC" in specs:
 
         if os.path.isfile(specs["WORD2VEC"]) is False:
             sys.exit("Invalid path to <word2vec_embeddings>.bin")

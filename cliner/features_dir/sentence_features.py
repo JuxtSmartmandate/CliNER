@@ -24,15 +24,15 @@ CLINER_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 
 # Import feature modules
 enabled = enabled_modules()
-if enabled['GENIA']:
+if enabled.get('GENIA', False):
     from .genia_dir.genia_features import GeniaFeatures
 
-if enabled["BROWN"]:
+if enabled.get("BROWN", False):
     from .BrownCluster import BrownCluster
-    bc = BrownCluster(enabled["BROWN"])
+    bc = BrownCluster(enabled.get("BROWN", False))
 
 # Only create UMLS cache if module is available
-if enabled['UMLS']:
+if enabled.get('UMLS', False):
     from cliner.features_dir.umls_dir import interface_umls, interpret_umls
     from cliner.features_dir.umls_dir import umls_features as feat_umls
 
@@ -47,10 +47,10 @@ nltk_tagger = load_pos_tagger()
 # Feature Enabling
 enabled_concept_features = frozenset(["UMLS", "grammar_features"])
 
-if enabled['GENIA']:
+if enabled.get('GENIA', False):
     feat_genia = None
 
-if enabled["WORD2VEC"]:
+if enabled.get("WORD2VEC", False):
     from cliner.features_dir.word2vec_dir.clustering import predict_sequence_cluster
 
 enabled_IOB_nonprose_sentence_features = []
@@ -74,7 +74,7 @@ enabled_IOB_prose_sentence_features.append('UMLS')
 
 dependency_parser = None
 
-if enabled["PY4J"]:
+if enabled.get("PY4J"):
     stanford_dir = os.path.join(CLINER_DIR,
                                 *["cliner", "lib", "java", "stanford_nlp"])
     sys.path.append(stanford_dir)
@@ -95,7 +95,7 @@ def display_enabled_modules():
 
 def sentence_features_preprocess(data):
     global feat_genia
-    tagger = enabled['GENIA']
+    tagger = enabled.get('GENIA', False)
     # Only run GENIA tagger if module is available
     if tagger:
         feat_genia = GeniaFeatures(tagger, data)
@@ -113,9 +113,9 @@ def IOB_prose_features(sentence, data=None):
 
     # Initialize feat_genia if not done so already
     global feat_genia
-    if data and enabled['GENIA'] and not feat_genia:
+    if data and enabled.get('GENIA', False) and not feat_genia:
         # Only run GENIA tagger if module is available
-        tagger = enabled['GENIA']
+        tagger = enabled.get('GENIA', False)
         feat_genia = GeniaFeatures(tagger, data)
 
     # Get a feature set for each word in the sentence
@@ -176,7 +176,7 @@ def IOB_prose_features(sentence, data=None):
 
 
         # GENIA features
-        if (feature == 'GENIA') and enabled['GENIA']:
+        if (feature == 'GENIA') and enabled.get('GENIA'):
 
             # Get GENIA features
             genia_feat_list = feat_genia.features(sentence)
@@ -533,7 +533,7 @@ def third_pass_features(line, indices, bow_model=None):
             start_tokens = [re.sub("[^A-Za-z0-9]", "", token) for token in start_tokens]
             start_tokens = [token for token in start_tokens if token != '']
 
-            if enabled["BROWN"]:
+            if enabled.get("BROWN", False):
 
                 for token in start_tokens:
                     cluster_str = bc.get_first_n_bits(token, -1)

@@ -40,8 +40,6 @@ def genia(geniatagger, data):
 
     # Get uncached lines
     uncached = []
-    from IPython.core.debugger import Tracer
-    Tracer()()
     for line in data:
         sent = ' '.join(line)
         if sent not in cache.cache:
@@ -117,6 +115,8 @@ def genia(geniatagger, data):
 
         #print 'tags: ', tags
 
+        from IPython.core.debugger import Tracer
+        Tracer()()
         for tag in tags:
             tag = tag.split()
             output = { 'GENIA-word'    : tag[0] ,

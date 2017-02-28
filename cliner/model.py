@@ -22,7 +22,7 @@ from . import globals_cliner
 import numpy as np
 from functools import reduce
 
-if enabled_modules()["WORD2VEC"]:
+if enabled_modules().get('WORD2VEC', False):
 
     from .features_dir.word2vec_dir import clustering
     from .features_dir.word2vec_dir.ngrams import get_char_gram_mappings
@@ -90,7 +90,7 @@ class Model:
         tokenized_sentences, iob_labels =  first_pass_data_and_labels(notes)
         chunks, indices    , con_labels = second_pass_data_and_labels(notes)
 
-        if enabled_modules()["WORD2VEC"]:
+        if enabled_modules().get('WORD2VEC', False):
 
             self.set_char_gram_maps(tokenized_sentences)
 
@@ -134,7 +134,7 @@ class Model:
         @return      <list> of Classification objects
         """
 
-        if enabled_modules()["WORD2VEC"]:
+        if enabled_modules().get('WORD2VEC', False):
 
             # setting as globals within module so they don't have to be passed as parameters...
             clustering.lexical_cluster    = self.seq_lex_clusters
