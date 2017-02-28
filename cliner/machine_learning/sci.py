@@ -33,7 +33,7 @@ def train(X, Y, do_grid, default_label=0):
 
     # Grid search?
     if do_grid:
-        print '\t\tperforming grid search'
+        print('\t\tperforming grid search')
 
         estimates = LinearSVC()
         parameters = [ {'C':C_range } ]

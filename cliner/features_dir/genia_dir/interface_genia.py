@@ -18,8 +18,8 @@ import os
 import sys
 import tempfile
 
-from commands import getstatusoutput
-from genia_cache import GeniaCache
+from subprocess import getstatusoutput
+from .genia_cache import GeniaCache
 
 tmp_dir = '/tmp'
 
@@ -40,9 +40,11 @@ def genia(geniatagger, data):
 
     # Get uncached lines
     uncached = []
+    from IPython.core.debugger import Tracer
+    Tracer()()
     for line in data:
         sent = ' '.join(line)
-        if not cache.has_key(sent):
+        if sent not in cache.cache:
             uncached.append(sent)
 
 
@@ -56,7 +58,7 @@ def genia(geniatagger, data):
             for line in uncached: f.write(line + '\n')
 
         # Run genia tagger
-        print '\t\tRunning  GENIA tagger'
+        print('\t\tRunning  GENIA tagger')
         genia_dir = os.path.dirname(geniatagger)
         stream = getstatusoutput('cd %s ; ./geniatagger -nt %s' %(genia_dir,out))
 

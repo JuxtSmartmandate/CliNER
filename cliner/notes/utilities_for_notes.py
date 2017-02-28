@@ -8,7 +8,7 @@
 
 
 import nltk.data
-import cPickle as pickle
+import pickle
 import nltk.tokenize
 import re
 import string

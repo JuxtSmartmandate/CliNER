@@ -107,6 +107,6 @@ if __name__ == "__main__":
     transformed_corpus = bow_model.transform(["This is a test\n sentence.",
                                               "corpus corpus test"])
 
-    print transformed_corpus
+    print(transformed_corpus)
 
 
