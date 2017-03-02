@@ -49,7 +49,6 @@ if [[ ! -f "$CLINER_DIR/config.txt" ]] ; then
 fi
 config_file="$CLINER_DIR/config.txt"
 out_tmp="out.tmp.txt"
-echo "BWAHAHAHAHA"
 echo $(pwd)
 echo "GENIA $(pwd)/geniatagger" > $out_tmp
 while read line ; do

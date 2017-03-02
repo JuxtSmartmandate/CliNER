@@ -115,8 +115,6 @@ def genia(geniatagger, data):
 
         #print 'tags: ', tags
 
-        from IPython.core.debugger import Tracer
-        Tracer()()
         for tag in tags:
             tag = tag.split()
             output = { 'GENIA-word'    : tag[0] ,
