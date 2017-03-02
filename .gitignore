@@ -52,3 +52,6 @@ paper.pdf
 # Config and logs
 config.txt
 log*.txt
+
+# cached
+genia_cache

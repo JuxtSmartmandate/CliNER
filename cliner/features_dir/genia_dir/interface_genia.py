@@ -9,22 +9,16 @@
 #  Genia Tagger: http://www.nactem.ac.uk/tsujii/GENIA/tagger/        #
 ######################################################################
 
-
+import os
+import tempfile
+from subprocess import check_output
+from cliner.features_dir.genia_dir.genia_cache import GeniaCache
 
 __author__ = 'Willie Boag'
-__date__   = 'Jan. 27, 2014'
+__date__ = 'Jan. 27, 2014'
 
-import os
-import sys
-import tempfile
-
-from subprocess import getstatusoutput
-from .genia_cache import GeniaCache
-
-tmp_dir = '/tmp'
 
 def genia(geniatagger, data):
-
     '''
     genia()
 
@@ -45,44 +39,47 @@ def genia(geniatagger, data):
         if sent not in cache.cache:
             uncached.append(sent)
 
-
     if uncached:
         # write list to file and then feed it to GENIA
         genia_dir = os.path.dirname(geniatagger)
 
-        os_handle,out = tempfile.mkstemp(dir=tmp_dir, suffix="genia_temp")
+        os_handle, uncached_fname = tempfile.mkstemp(suffix="genia_temp")
 
-        with open(out, 'w') as f:
-            for line in uncached: f.write(line + '\n')
+        with open(uncached_fname, 'w') as f:
+            for line in uncached:
+                f.write(line + '\n')
 
         # Run genia tagger
         print('\t\tRunning  GENIA tagger')
         genia_dir = os.path.dirname(geniatagger)
-        stream = getstatusoutput('cd %s ; ./geniatagger -nt %s' %(genia_dir,out))
+        genia_command = [geniatagger, "-nt", uncached_fname]
 
-        #print 'stream: ', stream
+        stream = check_output(genia_command, cwd=genia_dir).decode('utf-8')
 
-        #print '\t\tFinished GENIA tagger'
+        # print 'stream: ', stream
+
+        # print '\t\tFinished GENIA tagger'
 
         # Organize tagger output
         linetags = []
         tagged = []
 
         # if the sentence is too long genia outputs an error.
-        stream_lines = stream[1].split('\n')
+        stream_lines = stream.split('\n')
 
         # get the line the warning might be on.
-        potential_warning = "" if len(stream_lines[4:5]) == 0 else stream_lines[4:5][0]
+        #  potential_warning = "" if len(
+        #      stream_lines[4:5]) == 0 else stream_lines[4:5][0]
 
-        genia_stream = None
+        # genia_stream = None
 
-        if "warning: the sentence seems" in potential_warning:
-            # skip over warning
-            genia_stream = stream_lines[5:]
-        else:
-            genia_stream = stream_lines[4:]
+        #  if "warning: the sentence seems" in potential_warning:
+        #      # skip over warning
+        #      genia_stream = stream_lines[5:]
+        #  else:
+        #      genia_stream = stream_lines[4:]
 
-        for tag in genia_stream:
+        for tag in stream_lines:
             if tag.split():               # Part of line
                 linetags.append(tag)
             else:                         # End  of line
@@ -90,50 +87,43 @@ def genia(geniatagger, data):
                 linetags = []
 
         # Add tagger output to cache
-        for line,tags in zip(uncached,tagged):
-            cache.add_map(line,tags)
+        for line, tags in zip(uncached, tagged):
+            cache.add_map(line, tags)
 
         # Remove temp file
         os.close(os_handle)
 
-        #print 'GENIA OUTPUT: ', open(out,"rb").read()
+        # print 'GENIA OUTPUT: ', open(out,"rb").read()
 
-        os.remove(out)
-
+        os.remove(uncached_fname)
 
     # Extract features
     linefeats = []
     retlist = []
     for line in data:
 
-        #print 'line: ', line
+        # print 'line: ', line
 
         line = ' '.join(line)
 
         # Get tagged output from cache
         tags = cache.get_map(line)
 
-        #print 'tags: ', tags
+        # print 'tags: ', tags
 
         for tag in tags:
             tag = tag.split()
-            output = { 'GENIA-word'    : tag[0] ,
-                       'GENIA-stem'    : tag[1] ,
-                       'GENIA-POS'     : tag[2] ,
-                       'GENIA-chunktag': tag[3] ,
-                       'GENIA-NEtag'   : tag[4] }
+            output = {'GENIA-word': tag[0],
+                      'GENIA-stem': tag[1],
+                      'GENIA-POS': tag[2],
+                      'GENIA-chunktag': tag[3],
+                      'GENIA-NEtag': tag[4]}
 
             linefeats.append(output)
 
         retlist.append(linefeats)
         linefeats = []
 
-    #print 'retlist: ', retlist
+    # print 'retlist: ', retlist
 
     return retlist
-
-
-
-
-if __name__ == '__main__':
-    main()
