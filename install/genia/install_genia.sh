@@ -6,6 +6,7 @@
 
 
 # Installation log
+old_path=`pwd`
 GENIA_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 log="$GENIA_DIR/log_installation.txt"
 echo "" > $log
@@ -16,16 +17,21 @@ echo -e "\nSee genia installation details at: \n\t$GENIA_DIR/log_installation.tx
 
 # Get sources
 cd $CLINER_DIR/cliner/features_dir/genia_dir
-wget http://www.nactem.ac.uk/tsujii/GENIA/tagger/geniatagger-3.0.1.tar.gz
-tar xzvf geniatagger-3.0.1.tar.gz
-rm geniatagger-3.0.1.tar.gz
+wget http://www.nactem.ac.uk/tsujii/GENIA/tagger/geniatagger-3.0.2.tar.gz
+tar xzvf geniatagger-3.0.2.tar.gz
+rm geniatagger-3.0.2.tar.gz
 
 # Build GENIA tagger
-cd geniatagger-3.0.1/
+cd geniatagger-3.0.2/
 echo "$(sed '1i\
     #include <cstdlib>
     ' morph.cpp)" > morph.cpp # fix build error
 echo "building GENIA tagger"
+
+# The genia executable should like against Anaconda's libstdc++.6.dylib.
+
+export DYLD_LIBRARY_PATH="~/anaconda/lib"
+
 make
 echo -e "GENIA tagger built\n"
 
@@ -43,6 +49,7 @@ if [[ ! -f "$CLINER_DIR/config.txt" ]] ; then
 fi
 config_file="$CLINER_DIR/config.txt"
 out_tmp="out.tmp.txt"
+echo $(pwd)
 echo "GENIA $(pwd)/geniatagger" > $out_tmp
 while read line ; do
     if ! [[ $line = GENIA* ]] ; then

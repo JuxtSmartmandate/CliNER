@@ -8,6 +8,8 @@
 # 'install' directory
 BASE_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+export CLINER_DIR=$BASE_DIR
+
 # set CLINER_INSTALL_DIR variable
 source $BASE_DIR/install/cliner_dir/set_cliner_dir.sh
 echo "Setting dir done"

@@ -30,7 +30,7 @@ from read_config import enabled_modules
 # Import feature modules
 enabled = enabled_modules()
 
-if enabled["UMLS"]:
+if enabled.get('UMLS', False):
 
     from .disambiguation import cui_disambiguation
 
@@ -185,7 +185,7 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
     model = Model(is_crf=is_crf)
 
     # disambiguation
-    if format == "semeval" and disambiguate is True and enabled["UMLS"] != None:
+    if format == "semeval" and disambiguate is True and enabled.get('UMLS', False) != None:
         model.set_cui_freq(cui_disambiguation.calcFreqOfCuis(training_list))
 
     # Train the model using the Note's data
