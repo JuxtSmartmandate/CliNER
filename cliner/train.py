@@ -8,7 +8,7 @@
 
 
 __author__ = 'Willie Boag'
-__date__   = 'Oct. 5, 2014'
+__date__ = 'Oct. 5, 2014'
 
 
 import os
@@ -23,7 +23,8 @@ from cliner.model import Model
 from cliner.notes.note import Note
 from cliner.notes.utilities_for_notes import NoteException
 
-sys.path.append(os.path.join(*[os.environ["CLINER_DIR"], "cliner", "features_dir"]))
+sys.path.append(os.path.join(
+    *[os.environ["CLINER_DIR"], "cliner", "features_dir"]))
 
 from read_config import enabled_modules
 
@@ -34,52 +35,54 @@ if enabled.get('UMLS', False):
 
     from .disambiguation import cui_disambiguation
 
+
 def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-t",
-        dest = "txt",
-        help = "The files that contain the training examples",
-    )
+                        dest="txt",
+                        help="The files that contain the training examples",
+                        )
 
     parser.add_argument("-c",
-        dest = "con",
-        help = "The files that contain the labels for the training examples",
-    )
+                        dest="con",
+                        help="The files that contain the labels for the training examples",
+                        )
 
     parser.add_argument("-m",
-        dest = "model",
-        help = "Path to the model that should be generated",
-    )
+                        dest="model",
+                        help="Path to the model that should be generated",
+                        )
 
     parser.add_argument("-f",
-        dest = "format",
-        help = "Data format ( " + ' | '.join(Note.supportedFormats()) + " )",
-    )
+                        dest="format",
+                        help="Data format ( " +
+                        ' | '.join(Note.supportedFormats()) + " )",
+                        )
 
     parser.add_argument("-g",
-        dest = "grid",
-        help = "A flag indicating whether to perform a grid search",
-        action = "store_true"
-    )
+                        dest="grid",
+                        help="A flag indicating whether to perform a grid search",
+                        action="store_true"
+                        )
 
     parser.add_argument("-no-crf",
-        dest = "nocrf",
-        help = "A flag indicating whether to use crfsuite for pass one.",
-        action = "store_true"
-    )
+                        dest="nocrf",
+                        help="A flag indicating whether to use crfsuite for pass one.",
+                        action="store_true"
+                        )
 
     parser.add_argument("-discontiguous_spans",
-        dest = "third",
-        help = "A flag indicating whether to have third/clustering pass",
-        action = "store_true"
-    )
+                        dest="third",
+                        help="A flag indicating whether to have third/clustering pass",
+                        action="store_true"
+                        )
 
     parser.add_argument("-umls_disambiguation",
-        dest = "umls_disambiguation",
-        action = "store_true",
-        help = "A flag indicating wheter to disambiguate CUI id for detected entities in semeval format",
-    )
+                        dest="umls_disambiguation",
+                        action="store_true",
+                        help="A flag indicating wheter to disambiguate CUI id for detected entities in semeval format",
+                        )
 
     """
     parser.add_argument("-unlabeled",
@@ -108,19 +111,18 @@ def main():
         exit(1)
     modeldir = os.path.dirname(args.model)
     if (not os.path.exists(modeldir)) and (modeldir != ''):
-        print('\n\tError: Model dir does not exist: %s' % modeldir, file=sys.stderr)
+        print('\n\tError: Model dir does not exist: %s' %
+              modeldir, file=sys.stderr)
         print('', file=sys.stderr)
         exit(1)
 
     if "PY4J_DIR_PATH" not in os.environ and args.third is True:
         exit("please set environ var PY4J_DIR_PATH to the dir of the folder containg py4j<version>.jar")
 
-
     # A list of text    file paths
     # A list of concept file paths
     txt_files = glob.glob(args.txt)
     con_files = glob.glob(args.con)
-
 
     # data format
     if args.format:
@@ -135,25 +137,28 @@ def main():
     # Must specify output format
     if format not in Note.supportedFormats():
         print('\n\tError: Must specify output format', file=sys.stderr)
-        print('\tAvailable formats: ', ' | '.join(Note.supportedFormats()), file=sys.stderr)
+        print('\tAvailable formats: ', ' | '.join(
+            Note.supportedFormats()), file=sys.stderr)
         print('', file=sys.stderr)
         exit(1)
 
-
     # Collect training data file paths
-    txt_files_map = helper.map_files(txt_files) # ex. {'record-13': 'record-13.con'}
+    # ex. {'record-13': 'record-13.con'}
+    txt_files_map = helper.map_files(txt_files)
     con_files_map = helper.map_files(con_files)
 
-    training_list = []                          # ex. training_list =  [ ('record-13.txt', 'record-13.con') ]
+    # ex. training_list =  [ ('record-13.txt', 'record-13.con') ]
+    training_list = []
     for k in txt_files_map:
         if k in con_files_map:
             training_list.append((txt_files_map[k], con_files_map[k]))
 
     # Train the model
-    train(training_list, args.model, format, is_crf=is_crf, grid=args.grid, third=third, disambiguate=args.umls_disambiguation)
+    train(training_list, args.model, format, is_crf=is_crf,
+          grid=args.grid, third=third, disambiguate=args.umls_disambiguation)
+
 
 def train(training_list, model_path, format, is_crf=True, grid=False, third=False, disambiguate=False):
-
     """
     train()
 
@@ -174,7 +179,6 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
         note_tmp = Note(format)   # Create Note
         note_tmp.read(txt, con)   # Read data into Note
         notes.append(note_tmp)    # Add the Note to the list
-
 
     # file names
     if not notes:
