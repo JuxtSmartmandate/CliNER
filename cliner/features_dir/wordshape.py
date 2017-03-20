@@ -1,6 +1,6 @@
-import func_cache
-
 import re
+from cliner.features_dir import func_cache
+
 
 BOUNDARY_SIZE = 2
 
@@ -18,7 +18,8 @@ WORDSHAPECHRIS2USELC = 9
 WORDSHAPECHRIS3 = 10
 WORDSHAPECHRIS3USELC = 11
 
-greek = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "theta", "iota", "kappa", "lambda", "omicron", "rho", "sigma", "tau", "upsilon", "omega"]
+greek = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "theta", "iota",
+         "kappa", "lambda", "omicron", "rho", "sigma", "tau", "upsilon", "omega"]
 biogreek = r"alpha|beta|gamma|delta|epsilon|zeta|theta|iota|kappa|lambda|omicron|rho|sigma|tau|upsilon|omega"
 
 
@@ -57,8 +58,8 @@ def dontUseLC(shape):
     return shape == WORDSHAPEDAN2 or shape == WORDSHAPEDAN2BIO or shape == WORDSHAPEJENNY1 or shape == WORDSHAPECHRIS2 or shape == WORDSHAPECHRIS3
 
 
-def wordShape(inStr, wordShaper):
-    return wordShape(inStr, wordShaper, None)
+# def wordShape(inStr, wordShaper):
+#     return wordShape(inStr, wordShaper, None)
 
 
 def wordShape(inStr, wordShaper, knownLCWords):
@@ -151,10 +152,10 @@ def wordShapeDan2(s, knownLCWords):
 def wordShapeJenny1(s):
     sb = "WT-"
     lastM = '~'
-    nonLetters = False
+#    nonLetters = False
     length = len(s)
 
-    for i in range (0, length):
+    for i in range(0, length):
         c = s[i]
         m = c
         if c.isdigit():
@@ -170,8 +171,8 @@ def wordShapeJenny1(s):
                 i = i + len(gr) - 1
                 break
 
-        if m != 'x' and m != 'X':
-            nonLetters = True
+#        if m != 'x' and m != 'X':
+#            nonLetters = True
 
         if m != lastM:
             sb += m
@@ -181,9 +182,9 @@ def wordShapeJenny1(s):
     if length <= 3:
         sb += ':' + str(length)
 
-    #if knownLCWords is not None:
-     #   if not nonLetters and knownLCWords.contains(s.lower()):
-      #      sb += 'k'
+    # if knownLCWords is not None:
+    #     if not nonLetters and knownLCWords.contains(s.lower()):
+    #         sb += 'k'
     return sb
 
 
@@ -196,21 +197,21 @@ def wordShapeChris2(s, omitIfInBoundary, knownLCWords):
 
 
 def wordShapeChris2Short(s, length, knownLCWords):
-    sblength = length
+    # sblength = length
     sb = ""
 
-    if knownLCWords is not None:
-        sblength = length + 1
+#    if knownLCWords is not None:
+#        sblength = length + 1
 
     nonLetters = False
 
-    for i in range (0, length):
+    for i in range(0, length):
         c = s[i]
         m = c
         if c.isdigit():
             m = 'd'
         if c.islower():
-            m  = 'x'
+            m = 'x'
         if c.isupper() or c.istitle():
             m = 'X'
 
@@ -231,7 +232,7 @@ def wordShapeChris2Short(s, length, knownLCWords):
     return sb
 
 
-def wordShapeChris2Long (s, omitIfInBoundary,  length,  knownLCWords):
+def wordShapeChris2Long(s, omitIfInBoundary, length, knownLCWords):
     beginChars = ""
     endChars = ""
     beginUpto = 0
@@ -239,7 +240,7 @@ def wordShapeChris2Long (s, omitIfInBoundary,  length,  knownLCWords):
     seenSet = set([])
 
     nonLetters = False
-    for i in range (0, len(s)):
+    for i in range(0, len(s)):
         iIncr = 0
         c = s[i]
         m = c
@@ -278,12 +279,12 @@ def wordShapeChris2Long (s, omitIfInBoundary,  length,  knownLCWords):
         if omitIfInBoundary:
             for ch in seenSet:
                 insert = True
-                for i in range (0, beginUpto):
+                for i in range(0, beginUpto):
                     if beginChars[i] == ch:
                         insert = False
                         break
 
-                for i in range (0, endUpto):
+                for i in range(0, endUpto):
                     if endChars[i] == ch:
                         insert = False
                         break
@@ -298,18 +299,19 @@ def wordShapeChris2Long (s, omitIfInBoundary,  length,  knownLCWords):
             sb += 'k'
     return sb
 
-#def wordShapeDan2Bio( s,  knownLCWords):
- #   if containsGreekLetter(s):
-    #    return wordShapeDan2(s, knownLCWords) + "-GREEK"
-  #  else:
-   #     return wordShapeDan2(s, knownLCWords)
+
+def wordShapeDan2Bio(s, knownLCWords):
+    if containsGreekLetter(s):
+        return wordShapeDan2(s, knownLCWords) + "-GREEK"
+    else:
+        return wordShapeDan2(s, knownLCWords)
 
 
-def containsGreekLetter (s):
+def containsGreekLetter(s):
     return re.search(biogreek, s)
 
 
-def wordShapeChris1 (s):
+def wordShapeChris1(s):
     length = len(s)
     if length == 0:
         return "SYMBOL"
@@ -326,7 +328,8 @@ def wordShapeChris1 (s):
             seenDigit = True
         else:
             seenNonDigit = True
-        digit = digit or ch == '.' or ch == ',' or (i == 0 and (ch == '-' or ch == '+'))
+        digit = digit or ch == '.' or ch == ',' or (
+            i == 0 and (ch == '-' or ch == '+'))
         if not digit:
             number = False
 
@@ -353,7 +356,7 @@ def wordShapeChris1 (s):
     dash = False
     period = False
 
-    for i in range (0, length):
+    for i in range(0, length):
         ch = s[i]
         up = ch.isupper()
         let = re.search(r"^[A-Za-z]+$", ch)

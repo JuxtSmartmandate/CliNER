@@ -51,8 +51,6 @@ class GeniaFeatures(object):
 
         # print 'genia_feats: ', [ f['GENIA-word'] for f in genia_feats ]
         # print 'len(genia_feats): ', len(genia_feats)
-        from IPython.core.debugger import Tracer
-        Tracer()()
         assert len(sentence) == len(genia_feats)
 
         # Feature: Current word's GENIA features

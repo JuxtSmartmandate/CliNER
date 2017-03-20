@@ -10,6 +10,7 @@
 ######################################################################
 
 import os
+import os.path as op
 import tempfile
 from subprocess import check_output
 from cliner.features_dir.genia_dir.genia_cache import GeniaCache
@@ -41,7 +42,8 @@ def genia(geniatagger, data):
 
     if uncached:
         # write list to file and then feed it to GENIA
-        genia_dir = os.path.dirname(geniatagger)
+        genia_dir = op.dirname(geniatagger)
+        genia_exec = geniatagger
 
         os_handle, uncached_fname = tempfile.mkstemp(suffix="genia_temp")
 
@@ -51,8 +53,7 @@ def genia(geniatagger, data):
 
         # Run genia tagger
         print('\t\tRunning  GENIA tagger')
-        genia_dir = os.path.dirname(geniatagger)
-        genia_command = [geniatagger, "-nt", uncached_fname]
+        genia_command = [genia_exec, "-nt", uncached_fname]
 
         stream = check_output(genia_command, cwd=genia_dir).decode('utf-8')
 

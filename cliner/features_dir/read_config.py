@@ -8,11 +8,12 @@
 ######################################################################
 
 
-
-import os
+import os.path as op
 import sys
+from configparser import ConfigParser
 
-CLINER_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), *["..", ".."])
+CLINER_DIR = op.join(op.dirname(op.abspath(__file__)), *["..", ".."])
+
 
 def enabled_modules():
     """
@@ -25,55 +26,39 @@ def enabled_modules():
     >>> enabled_modules() is not None
     True
     """
-    # Open config file
-    filename = os.path.join(CLINER_DIR, 'config.txt' )
-    f = open(filename, 'r')
-
-    specs = {}
-    module_list = [ 'GENIA', 'UMLS', "BROWN", "PY4J", "WORD2VEC" ]
-
-
-    for line in f.readlines():
-        words = line.split()
-        if words:
-
-            # Modules
-            if words[0] in module_list:
-                if words[1] == 'None':
-                    specs[words[0]] = None
-                else:
-                    specs[words[0]] = os.path.expandvars(words[1]).strip('\"').strip('\'')
+    config_path = op.join(CLINER_DIR, "config.ini")
+    cfparser = ConfigParser()
+    cfparser.read(config_path)
+    specs = cfparser['DEFAULT']
 
     # check if paths are actually valid
     if "GENIA" in specs:
 
-        if os.path.isfile(specs["GENIA"]) is False:
+        if op.isfile(specs["GENIA"]) is False:
             sys.exit("Invalid path to genia executable.")
 
     if "UMLS" in specs:
 
-        if os.path.isdir(specs["UMLS"]) is False:
+        if op.isdir(specs["UMLS"]) is False:
             sys.exit("Invalid path to directory containing UMLS database tables.")
 
     if "BROWN" in specs:
 
-        if os.path.isfile(specs["BROWN"]) is False:
+        if op.isfile(specs["BROWN"]) is False:
             sys.exit("Invalid path to generated brown clusters.")
 
     if "PY4J" in specs:
 
-        if os.path.isfile(specs["PY4J"]) is False:
-            sys.exit("Invalid path to py4j0.x.jar, consult https://www.py4j.org/install.html to locate it.")
+        if op.isfile(specs["PY4J"]) is False:
+            sys.exit(
+                "Invalid path to py4j0.x.jar, consult https://www.py4j.org/install.html to locate it.")
 
     if "WORD2VEC" in specs:
 
-        if os.path.isfile(specs["WORD2VEC"]) is False:
+        if op.isfile(specs["WORD2VEC"]) is False:
             sys.exit("Invalid path to <word2vec_embeddings>.bin")
 
     return specs
 
 if __name__ == "__main__":
-
     print(enabled_modules())
-
-
