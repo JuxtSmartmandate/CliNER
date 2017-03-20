@@ -21,10 +21,6 @@ echo "Setting dir done"
 bash $BASE_DIR/install/build_cliner/build_cliner.sh
 echo "Installing cliner done"
 
-# genia tagger
-bash $BASE_DIR/install/genia/install_genia.sh
-echo "Installing genia done"
-
 # install stanford parser
 bash $BASE_DIR/install/java_dependencies/stanford-corenlp_install.sh
 echo "Installing stanford parser done"

@@ -50,5 +50,10 @@ nosetests.xml
 paper.pdf
 
 # Config and logs
-config.txt
+config.ini
 log*.txt
+
+# cached
+genia_cache
+
+#

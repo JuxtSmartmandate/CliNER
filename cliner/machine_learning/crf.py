@@ -7,7 +7,6 @@
 ######################################################################
 
 
-import sys
 import os
 import tempfile
 import pycrfsuite
@@ -16,27 +15,28 @@ count = 0
 
 tmp_dir = '/tmp'
 
+
 def format_features(rows, labels=None):
 
     retVal = []
 
     # For each line
-    for i,line in enumerate(rows):
+    for i, line in enumerate(rows):
 
         # For each word in the line
-        for j,features in enumerate(line):
+        for j, features in enumerate(line):
 
             # Nonzero dimensions
-            inds  = features.nonzero()[1]
+            inds = features.nonzero()[1]
 
             # If label exists
             values = []
             if labels:
-                values.append( str(labels[i][j]) )
+                values.append(str(labels[i][j]))
 
             # Value for each dimension
             for k in inds:
-                values.append( '%d=%d' %  (k, features[0,k]) )
+                values.append('%d=%d' % (k, features[0, k]))
 
             retVal.append("\t".join(values).strip())
 
@@ -59,8 +59,6 @@ def format_features(rows, labels=None):
     '''
 
     return retVal
-
-
 
 
 def pycrf_instances(fi, labeled):
@@ -98,18 +96,17 @@ def pycrf_instances(fi, labeled):
             yseq.append(fields[0])
 
 
-
 def train(X, Y, do_grid):
 
     # Sanity Check detection: features & label
-    #with open('a','w') as f:
+    # with open('a','w') as f:
     #    for xline,yline in zip(X,Y):
     #        for x,y in zip(xline,yline):
     #            print >>f, y, '\t', x.nonzero()[1][0]
     #        print >>f
 
     # Format features fot crfsuite
-    feats = format_features(X,Y)
+    feats = format_features(X, Y)
 
     # Create a Trainer object.
     trainer = pycrfsuite.Trainer(verbose=False)
@@ -121,12 +118,12 @@ def train(X, Y, do_grid):
         'Grid Search not implemented yet'
 
     # Train the model
-    os_handle,tmp_file = tempfile.mkstemp(dir=tmp_dir, suffix="crf_temp")
+    os_handle, tmp_file = tempfile.mkstemp(dir=tmp_dir, suffix="crf_temp")
     trainer.train(tmp_file)
 
     # Read the trained model into a string
     model = ''
-    with open(tmp_file, 'r') as f:
+    with open(tmp_file, 'rb') as f:
         model = f.read()
     os.close(os_handle)
 
@@ -136,15 +133,13 @@ def train(X, Y, do_grid):
     return model
 
 
-
-
 def predict(clf, X):
 
     # Format features fot crfsuite
     feats = format_features(X)
 
     # Dump the model into a temp file
-    os_handle,tmp_file = tempfile.mkstemp(dir=tmp_dir, suffix="crf_temp")
+    os_handle, tmp_file = tempfile.mkstemp(dir=tmp_dir, suffix="crf_temp")
     with open(tmp_file, 'wb') as f:
         f.write(clf)
 
@@ -160,12 +155,12 @@ def predict(clf, X):
     retVal = []
     Y = []
     for xseq in pycrf_instances(feats, labeled=False):
-        yseq = [ int(n) for n in tagger.tag(xseq) ]
+        yseq = [int(n) for n in tagger.tag(xseq)]
         retVal += list(yseq)
         Y.append(list(yseq))
 
     # Sanity Check detection: feature & label predictions
-    #with open('a','w') as f:
+    # with open('a','w') as f:
     #    for x,y in zip(xseq,Y):
     #        x = x[0]
     #        print >>f, y, '\t', x[:-2]
