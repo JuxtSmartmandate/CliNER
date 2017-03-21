@@ -134,9 +134,9 @@ def vsmTest():
     vectorSpacedModel = VSM(documents=documents)
 #    print vectorSpacedModel.get_closest_documents(my_phrase)
 
-    print(vectorSpacedModel.preprocess(["diseased"]))
+    print((vectorSpacedModel.preprocess(["diseased"])))
 
-    print(time.time() - init_time)
+    print((time.time() - init_time))
 
 if __name__ == "__main__":
     vsmTest()

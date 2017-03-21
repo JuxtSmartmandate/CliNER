@@ -47,7 +47,7 @@ class UmlsSimilarity:
         if key in self.new:
             return self.new[key]
 
-        print('querying: ', key)
+        print(('querying: ', key))
 
         # Build URL for web query
         url = ('http://atlas.ahc.umn.edu/cgi-bin/umls_similarity.cgi?word1=' +
@@ -89,7 +89,7 @@ def main():
 
     sim = UmlsSimilarity()
 
-    print(sim.distance(term1, term2))
+    print((sim.distance(term1, term2)))
 
 
 if __name__ == '__main__':

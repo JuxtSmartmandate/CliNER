@@ -46,4 +46,4 @@ def preprocess(string):
 
 if __name__ == "__main__":
 
-    print(preprocess("he was running very fast"))
+    print((preprocess("he was running very fast")))

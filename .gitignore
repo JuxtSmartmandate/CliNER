@@ -56,4 +56,5 @@ log*.txt
 # cached
 genia_cache
 
-#
+# sphinx
+docs/_build

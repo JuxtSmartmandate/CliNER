@@ -1,18 +1,17 @@
 import os
 import sys
-import pickle as pickle
-from . import interface_umls
+import time
+import nltk
+from cliner.features_dir.umls_dir import interface_umls
+from cliner.features_dir.umls_dir.umls_cache import UmlsCache
+from cliner.normalization.spellCheck.spellChecker import spellCheck
 
 sys.path.append((os.environ["CLINER_DIR"] +
                  "/cliner/normalization/spellCheck"))
 sys.path.append((os.environ["CLINER_DIR"] + "/cliner/lib/java/metamap"))
 
-import time
-import nltk
 
-#from spellChecker import spellCheck
-#from spellChecker import getPWL
-from .umls_cache import UmlsCache
+# from spellChecker import getPWL
 
 metamap = None
 
@@ -56,7 +55,7 @@ def umls_semantic_context_of_words(umls_string_cache, sentence):
             rawstring = rawstring.strip()
 
             # Not in cache yet?
-            if not(rawstring in umls_string_cache):
+            if not(umls_string_cache.has_key(rawstring)):  # NOQA
                 # returns a tuple if there is a result or None is there is not.
                 concept = interface_umls.string_lookup(rawstring)
 
@@ -172,7 +171,7 @@ def abr_lookup(cache, word):
 
 def get_cuis_for_abr(cache, word):
     """ gets cui for each possible expansion of abbreviation """
-    if word + "--cuis_of_abr" in cache:
+    if cache.has_key(word + "--cuis_of_abr"):  # NOQA
         cuis_of_abr = cache.get_map(word + "--cuis_of_abr")
     else:
         cuis_of_abr = {}
@@ -206,7 +205,7 @@ def get_tui(cache, cuiStr):
 def get_cui(cache, word):
 
     # If already in cache
-    if word + '--cuis' in cache:
+    if cache.has_key(word + '--cuis'):  # NOQA
 
         cuis = cache.get_map(word + '--cuis')
 
@@ -325,7 +324,7 @@ def normalize_phrase(phrase, PyPwl=None):
 
         phrase = spellCheck(phrase, PyPwl=PyPwl)
 
-        print(time.time() - init_time)
+        print((time.time() - init_time))
 
     return phrase
 
@@ -350,7 +349,7 @@ def obtain_concept_ids(cache, phrase, PyPwl=None, cui_freq={}):
     if is_valid_phrase(phrase) is False:
         return ['CUI-less']
 
-    #phrases = [normalize_phrase(phrase, PyPwl=PyPwl) for phrase in phrases]
+    # phrases = [normalize_phrase(phrase, PyPwl=PyPwl) for phrase in phrases]
 
     # assumes dependencies are installed properly if this function is called.
     if metamap is None:
@@ -395,8 +394,8 @@ if __name__ == "__main__":
 
     for phrase in strings:
 
-        print("PHRASE: ", phrase)
-        print("CUI: ", obtain_concept_ids(cache, phrase))
+        print(("PHRASE: ", phrase))
+        print(("CUI: ", obtain_concept_ids(cache, phrase)))
 
     print("nothing to do")
 

@@ -2,8 +2,8 @@
 import sqlite3
 import os
 import sys
-import os
 import atexit
+from read_config import enabled_modules
 
 features_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if features_dir not in sys.path:
@@ -11,7 +11,6 @@ if features_dir not in sys.path:
 
 
 # find where umls tables are located
-from read_config import enabled_modules
 enabled = enabled_modules()
 umls_tables = enabled['UMLS']
 
@@ -105,7 +104,9 @@ def create_db():
         sys.exit()
 
     try:
-        lrabr_path = os.path.join(umls_tables, 'LRABR')
+        lrabr_path = os.path.join(umls_tables, "..", "LEX", 'LRABR')
+        from IPython.core.debugger import Tracer  # NOQA
+        Tracer()()
         LRABR_TABLE_FILE = open(lrabr_path, "r")
     except IOError:
         print("\nNo file to use for creating LRABR table\n")
