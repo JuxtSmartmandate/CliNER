@@ -1,4 +1,4 @@
-import cPickle as pickle
+import pickle as pickle
 import enchant
 import os
 import sys
@@ -10,9 +10,9 @@ umls_words_file_path = os.path.join(*[umls_spell_check_dir, "umls_words.txt"])
 
 def getPWL():
 
-    print "loading personal word list"
+    print("loading personal word list")
     pwl = enchant.DictWithPWL(None, umls_words_file_path)
-    print "finished loading pwl"
+    print("finished loading pwl")
 
     return pwl
 
@@ -26,13 +26,13 @@ def spellCheck(string, strLen=0, PyPwl=None):
     PyPwl is a pyenchant personal word list object.
     """
 
-    print "spell correcting: ", string
+    print("spell correcting: ", string)
 
     if PyPwl is None:
-        print "NOT using personal word list"
+        print("NOT using personal word list")
         spellChecker = enchant.Dict("en_US")
     else:
-        print "using personal word list"
+        print("using personal word list")
 
     spellChecker = PyPwl
 
@@ -88,8 +88,8 @@ if __name__ == "__main__":
 
     init_time = time.time()
 
-    print spellCheck( "diseased", PyPwl=pwl)
+    print(spellCheck( "diseased", PyPwl=pwl))
 
-    print time.time() - init_time
+    print(time.time() - init_time)
 
 

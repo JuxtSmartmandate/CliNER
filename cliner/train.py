@@ -7,12 +7,8 @@
 ######################################################################
 
 
-__author__ = 'Willie Boag'
-__date__ = 'Oct. 5, 2014'
-
-
 import os
-import os.path
+import os.path as op
 import glob
 import argparse
 import pickle as pickle
@@ -21,19 +17,21 @@ import sys
 from cliner import helper
 from cliner.model import Model
 from cliner.notes.note import Note
-from cliner.notes.utilities_for_notes import NoteException
+from read_config import enabled_modules
 
-sys.path.append(os.path.join(
+__author__ = 'Willie Boag'
+__date__ = 'Oct. 5, 2014'
+
+sys.path.append(op.join(
     *[os.environ["CLINER_DIR"], "cliner", "features_dir"]))
 
-from read_config import enabled_modules
 
 # Import feature modules
 enabled = enabled_modules()
 
 if enabled.get('UMLS', False):
 
-    from .disambiguation import cui_disambiguation
+    from cliner.disambiguation import cui_disambiguation
 
 
 def main():
@@ -109,8 +107,8 @@ def main():
         print('\n\tError: Must provide valid path to store model', file=sys.stderr)
         print('', file=sys.stderr)
         exit(1)
-    modeldir = os.path.dirname(args.model)
-    if (not os.path.exists(modeldir)) and (modeldir != ''):
+    modeldir = op.dirname(args.model)
+    if (not op.exists(modeldir)) and (modeldir != ''):
         print('\n\tError: Model dir does not exist: %s' %
               modeldir, file=sys.stderr)
         print('', file=sys.stderr)
@@ -189,7 +187,7 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
     model = Model(is_crf=is_crf)
 
     # disambiguation
-    if format == "semeval" and disambiguate is True and enabled.get('UMLS', False) != None:
+    if format == "semeval" and disambiguate is True and enabled.get('UMLS', False):
         model.set_cui_freq(cui_disambiguation.calcFreqOfCuis(training_list))
 
     # Train the model using the Note's data
