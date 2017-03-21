@@ -1,10 +1,7 @@
 
-from subprocess import Popen, PIPE, STDOUT
-
-from py4j.java_collections import JavaArray
 from py4j.java_gateway import JavaGateway
+from cliner.lib.java.entry_point.gateway import GateWayServer
 
-import re
 import os
 import time
 import sys
@@ -15,16 +12,15 @@ gateway_dir = os.environ["CLINER_DIR"] + "/cliner/lib/java/entry_point"
 
 sys.path.append(gateway_dir)
 
-from gateway import GateWayServer
 
-class DependencyParser:
+class DependencyParser(object):
 
     def __init__(self):
 
-#        print "\nLoading stanford dependency parser..."
+        #        print "\nLoading stanford dependency parser..."
 
         # launches java gateway server.
-        GateWayServer.launch_gateway()
+#        GateWayServer.launch_gateway()
 
         init_time = time.time()
 
@@ -34,6 +30,8 @@ class DependencyParser:
 
                 self.gateway = JavaGateway(eager_load=True)
                 self.parser = self.gateway.entry_point.getStanfordParserObj()
+                from IPython.core.debugger import Tracer  # NOQA
+                Tracer()()
 
             except:
 
@@ -45,13 +43,11 @@ class DependencyParser:
 
             break
 
-
-
     def getNounPhraseHeads(self, string):
 
         heads = []
 
-        string =  string.lower()
+        string = string.lower()
 
         for head in self.parser.getNounPhraseHeads(string):
             heads.append(head)
@@ -85,10 +81,10 @@ class DependencyParser:
                   '_target_index',   # the index of the token in which the current token has a relation with
                   '_rel_type']       # the type of relation between the source token and target token
 
-        _source_index = 0
-        _source_token = 1
-        _target_index = 6
-        _rel_type = 7
+        _source_index = 0  # NOQA
+        _source_token = 1  # NOQA
+        _target_index = 6  # NOQA
+        _rel_type = 7  # NOQA
 
         if field in fields:
             ret_val = line[eval(field)]
@@ -118,7 +114,8 @@ class DependencyParser:
     def _process_parser_output(self, output_from_parser):
 
         # sentizer and tokenize output from dependency parser
-        output_from_parser = [line.split('\t') for line in output_from_parser.split('\n') if line != '']
+        output_from_parser = [line.split(
+            '\t') for line in output_from_parser.split('\n') if line != '']
 
         # a list of list of lists
         # [ [  [ lines of outut for a sentence, ...  ], ...  ], ...  ]
@@ -140,31 +137,33 @@ class DependencyParser:
             if self._get_rel_type(line) == 'erased':
                 continue
 
-            dependency_group[self._get_source_index(line)] = {"source_token":self._get_source_token(line),
-                                                              "target_index":self._get_target_index(line),
-                                                              "rel_type":self._get_rel_type(line)}
+            dependency_group[self._get_source_index(line)] = {"source_token": self._get_source_token(line),
+                                                              "target_index": self._get_target_index(line),
+                                                              "rel_type": self._get_rel_type(line)}
 
         return dependency_group
 
     def get_related_tokens(self, target_index, sentence, dependency_group):
 
-        # input indices should be in base 0, but will be handled as base 1 throughout document...
+        # input indices should be in base 0, but will be handled as base 1
+        # throughout document...
 
-        target_index  += 1
+        target_index += 1
 
         if target_index not in dependency_group:
             return {}
 
-        assert dependency_group[target_index]["source_token"] == sentence[target_index - 1]
+        assert dependency_group[target_index][
+            "source_token"] == sentence[target_index - 1]
 
         dependencies = {}
 
         feature_name = "source_dep"
 
-        start_index  = target_index
+        start_index = target_index
 
         tmp_dependencies = {}
-        curr_node    = dependency_group[start_index]
+        curr_node = dependency_group[start_index]
 
         while True:
 
@@ -188,18 +187,20 @@ class DependencyParser:
             if i == target_index:
                 continue
 
-            dependencies.update(self.related_tokens_between(i-1, target_index-1, sentence, dependency_group))
+            dependencies.update(self.related_tokens_between(
+                i - 1, target_index - 1, sentence, dependency_group))
 
         return dependencies
 
-
     def related_tokens_between(self, start_index, end_index, sentence, dependency_group):
 
-        # TODO: amend this so it actually gets depenencies on relation path, for third pass...
+        # TODO: amend this so it actually gets depenencies on relation path,
+        # for third pass...
 
-        # input indices should be in base 0, but will be handled as base 1 throughout document...
+        # input indices should be in base 0, but will be handled as base 1
+        # throughout document...
 
-        start_index  += 1
+        start_index += 1
         end_index += 1
 
         if start_index not in dependency_group:
@@ -207,15 +208,17 @@ class DependencyParser:
         if end_index not in dependency_group:
             return {}
 
-        assert dependency_group[start_index]["source_token"] == sentence[start_index - 1]
-        assert dependency_group[end_index]["source_token"] == sentence[end_index - 1]
+        assert dependency_group[start_index][
+            "source_token"] == sentence[start_index - 1]
+        assert dependency_group[end_index][
+            "source_token"] == sentence[end_index - 1]
 
         dependencies = {}
 
         feature_name = "target_dep"
 
         tmp_dependencies = {}
-        curr_node    = dependency_group[start_index]
+        curr_node = dependency_group[start_index]
 
         tmp_dependencies[(feature_name,
                           curr_node["source_token"])] = 1
@@ -245,27 +248,30 @@ class DependencyParser:
 
     def __related_tokens_between(self, target_index, sibling_index, sentence, dependency_group):
 
-        # TODO: amend this so it actually gets depenencies on relation path, for third pass...
+        # TODO: amend this so it actually gets depenencies on relation path,
+        # for third pass...
 
-        # input indices should be in base 0, but will be handled as base 1 throughout document...
+        # input indices should be in base 0, but will be handled as base 1
+        # throughout document...
 
-        target_index  += 1
+        target_index += 1
         sibling_index += 1
 
         assert target_index in dependency_group
         assert sibling_index in dependency_group
 
-        assert dependency_group[target_index]["source_token"] == sentence[target_index - 1]
-        assert dependency_group[sibling_index]["source_token"] == sentence[sibling_index - 1]
+        assert dependency_group[target_index][
+            "source_token"] == sentence[target_index - 1]
+        assert dependency_group[sibling_index][
+            "source_token"] == sentence[sibling_index - 1]
 
         dependencies = {}
-
 
         for feature_name, start_index, end_index in (("source_dep", target_index, sibling_index),
                                                      ("target_dep", sibling_index, target_index)):
 
             tmp_dependencies = {}
-            curr_node    = dependency_group[start_index]
+            curr_node = dependency_group[start_index]
 
             while True:
 
@@ -287,7 +293,6 @@ class DependencyParser:
         return dependencies
 
     def addTokenToProcess(self, token):
-
         """py4j cannot convert python lists to java objects.
            a stack approach is be used.
         """
@@ -303,14 +308,15 @@ if __name__ == "__main__":
 
     d = p.get_collapsed_dependencies(["He", "ran", "to", "his classroom"])
 
-    print d
-    print p.get_related_tokens(2, ["He", "ran", "to", "his classroom"], d)
+    print(d)
+    print(p.get_related_tokens(2, ["He", "ran", "to", "his classroom"], d))
 
-    d = p.get_collapsed_dependencies(["The", "man", "was", "admitted", "to", "the", "emergency room"])
+    d = p.get_collapsed_dependencies(
+        ["The", "man", "was", "admitted", "to", "the", "emergency room"])
 
-    print d
-    print p.get_related_tokens(6, ["The", "man", "was", "admitted", "to", "the", "emergency room"], d)
+    print(d)
+    print(p.get_related_tokens(
+        6, ["The", "man", "was", "admitted", "to", "the", "emergency room"], d))
 
 
 # EOF
-

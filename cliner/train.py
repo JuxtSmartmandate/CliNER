@@ -7,10 +7,6 @@
 ######################################################################
 
 
-__author__ = 'Willie Boag'
-__date__ = 'Oct. 5, 2014'
-
-
 import os
 import os.path
 import glob
@@ -21,12 +17,14 @@ import sys
 from cliner import helper
 from cliner.model import Model
 from cliner.notes.note import Note
-from cliner.notes.utilities_for_notes import NoteException
+from read_config import enabled_modules
 
 sys.path.append(os.path.join(
     *[os.environ["CLINER_DIR"], "cliner", "features_dir"]))
 
-from read_config import enabled_modules
+
+__author__ = 'Willie Boag'
+__date__ = 'Oct. 5, 2014'
 
 # Import feature modules
 enabled = enabled_modules()
@@ -116,11 +114,12 @@ def main():
         print('', file=sys.stderr)
         exit(1)
 
-    if "PY4J_DIR_PATH" not in os.environ and args.third is True:
-        exit("please set environ var PY4J_DIR_PATH to the dir of the folder containg py4j<version>.jar")
+#    if "PY4J_DIR_PATH" not in os.environ and args.third is True:
+#        exit("please set environ var PY4J_DIR_PATH to the dir of the folder containg py4j<version>.jar")
 
     # A list of text    file paths
     # A list of concept file paths
+    # CAUTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     txt_files = glob.glob(args.txt)
     con_files = glob.glob(args.con)
 
@@ -173,6 +172,7 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
     """
 
     # Read the data into a Note object
+    print("TRAIN START!!!!!!!!!!!!")
     notes = []
     for txt, con in training_list:
 
@@ -189,7 +189,7 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
     model = Model(is_crf=is_crf)
 
     # disambiguation
-    if format == "semeval" and disambiguate is True and enabled.get('UMLS', False) != None:
+    if (format == "semeval") and disambiguate and enabled.get('UMLS', False):
         model.set_cui_freq(cui_disambiguation.calcFreqOfCuis(training_list))
 
     # Train the model using the Note's data
@@ -201,8 +201,11 @@ def train(training_list, model_path, format, is_crf=True, grid=False, third=Fals
         pickle.dump(model, m_file)
 
     # return trained model
+    print("TRAIN END!!!!!!!!!!!!")
     return model
 
 
 if __name__ == '__main__':
     main()
+    print('Absolute End!!!!!!!!!!!!!!!!!')
+

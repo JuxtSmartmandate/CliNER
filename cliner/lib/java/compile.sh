@@ -22,4 +22,3 @@ bash "runner.sh" compile
 
 cd $ENTRY_POINT_DIR
 bash "runner.sh" compile
-

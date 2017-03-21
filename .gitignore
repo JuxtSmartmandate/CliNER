@@ -21,7 +21,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
-lib
+# lib
 lib64
 
 # Installer logs
@@ -56,4 +56,8 @@ log*.txt
 # cached
 genia_cache
 
-#
+# Stanford CoreNLP
+stanford-corenlp-full
+
+# Java classes
+*.class

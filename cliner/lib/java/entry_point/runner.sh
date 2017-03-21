@@ -6,8 +6,10 @@ fi
 
 if [ "$PY4J_DIR_PATH" == "" ]; then
     echo "environment variable PY4J_DIR_PATH not specified"
-    echo "please put exact path example .../venv/share/py4j"
-    exit
+    echo "trying to infer the Py4J directory..."
+    export PY4J_DIR_PATH=$(python -m cliner.lib.java.entry_point.get_py4j_dir)
+    echo "The path was found at $PY4J_DIR_PATH"
+    echo "If this is incorrect, please set the correct path to \$PY4J_DIR_PATH"
 fi
 
 JAVA_DIR="$CLINER_DIR/cliner/lib/java"
@@ -27,6 +29,10 @@ ENTRY_POINT_DEPENDENCIES=":$ENTRY_POINT_DIR/*"
 
 #DEPENDENCIES="$PY4J_DEPENDENCIES$METAMAP_DEPENDENCIES$NORMAPI_DEPENDENCIES$STANFORD_DEPENDENCIES$OPENNLP_DEPENDENCIES"
 DEPENDENCIES="$ENTRY_POINT_DIR$PY4J_DEPENDENCIES$METAMAP_DEPENDENCIES$NORMAPI_DEPENDENCIES$STANFORD_DEPENDENCIES"
+
+
+echo "BWAHAHAHA"
+echo $DEPENDENCIES
 
 
 compile() {

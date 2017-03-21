@@ -80,6 +80,8 @@ if enabled.get("PY4J", False):
     sys.path.append(stanford_dir)
 
     from stanfordParse import DependencyParser
+    from IPython.core.debugger import Tracer  # NOQA
+    Tracer()()
     dependency_parser = DependencyParser()
 
 
@@ -391,8 +393,12 @@ def concept_features_for_sentence(sentence, chunk_inds):
             print("getting grammar features")
             for i, target_index in enumerate(chunk_inds):
                 if dependencies is not None:
-                    features_list[i].update(dependency_parser.get_related_tokens(
-                        target_index, sentence, dependencies))
+                    try:
+                        features_list[i].update(dependency_parser.get_related_tokens(
+                            target_index, sentence, dependencies))
+                    except Exception as err:
+                        from IPython.core.debugger import Tracer  # NOQA
+                        Tracer()()
 
     if enabled.get("WORD2VEC", False):
         print("getting vectors...")
@@ -435,6 +441,8 @@ def getTokens(start, end, dependencies):
 
     lOflOftokens = []
 
+    from IPython.core.debugger import Tracer  # NOQA
+    Tracer()()
     paths = dependency_parser.follow_dependency_path(start, end, dependencies)
 
     for l in paths:
@@ -480,6 +488,8 @@ def third_pass_features(line, indices, bow_model=None):
             *[os.environ["CLINER_DIR"], "cliner", "lib", "java", "stanford_nlp"]))
         from stanfordParse import DependencyParser
 
+        from IPython.core.debugger import Tracer  # NOQA
+        Tracer()()
         dependency_parser = DependencyParser()
 
     heads = []
@@ -495,9 +505,13 @@ def third_pass_features(line, indices, bow_model=None):
 
         # get dependency paths for tokens in line.
         if len(line) <= 100:
+            from IPython.core.debugger import Tracer  # NOQA
+            Tracer()()
             heads = dependency_parser.getNounPhraseHeads(sentence)
 
             #  the parser takes way too long to run for really long strings.
+            from IPython.core.debugger import Tracer  # NOQA
+            Tracer()()
             dependencies = dependency_parser.get_collapsed_dependencies(
                 " ".join(line))
         else:

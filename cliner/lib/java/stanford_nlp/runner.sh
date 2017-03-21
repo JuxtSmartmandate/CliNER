@@ -38,7 +38,7 @@ elif [ "$1" == "clean" ] ;then
 
 else
 
-    echo -en "valid flags:\n\tcompile\n\ttest\n\tclean\n"
+    echo -en "valid flags:\n\tcompile\n\trun\n\tclean\n"
 
 fi
 
