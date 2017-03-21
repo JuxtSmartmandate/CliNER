@@ -1,7 +1,7 @@
 
 import sys
 import os
-import cPickle as pickle
+import pickle as pickle
 
 from features_dir.umls_dir.interpret_umls import obtain_concept_ids
 
@@ -14,11 +14,11 @@ from umls_cache import UmlsCache
 pwl = None
 umls_cache = UmlsCache()
 
+
 def disambiguate(output, txtFile, cui_freq):
     """
     obtains concept ids for each phrase indicated by the span generated from prediction
     """
-
 
     txtFile = open(txtFile, "r")
 
@@ -36,18 +36,18 @@ def disambiguate(output, txtFile, cui_freq):
         spans = line.split("|")
 
         if len(spans) != 19:
-            print "ERROR: the format of this line is not correct."
-            print "LINE: line"
+            print("ERROR: the format of this line is not correct.")
+            print("LINE: line")
             exit()
 
         spans = spans[1]
         spans = spans.split(',')
         spans = [s.split('-') for s in spans]
 
-         # get the phrase  for each span
+        # get the phrase  for each span
         for span in spans:
 
-            string = txtFile[int(span[0]):int(span[1])+1]
+            string = txtFile[int(span[0]):int(span[1]) + 1]
 
             phrase += string
 
@@ -66,11 +66,11 @@ def disambiguate(output, txtFile, cui_freq):
     cuis = []
 
     for phrase in phrases:
-        cuis.append(obtain_concept_ids(umls_cache, phrase, PyPwl=pwl, cui_freq=cui_freq))
+        cuis.append(obtain_concept_ids(
+            umls_cache, phrase, PyPwl=pwl, cui_freq=cui_freq))
 
     for cui, cuiToInsert in zip(cuis, cuisToInsert):
         cuiToInsert["cui"] = cui
-
 
     for cuiToInsert in cuisToInsert:
         # replace CUI-less with concept id obtained
@@ -83,6 +83,7 @@ def disambiguate(output, txtFile, cui_freq):
     resultingOutput = "\n".join(output)
 
     return resultingOutput
+
 
 def calcFreqOfCuis(training_list):
 
@@ -125,4 +126,3 @@ def calcFreqOfCuis(training_list):
         cui_freq[cui] = (cui_freq[cui] / total_cui_count)
 
     return cui_freq
-
