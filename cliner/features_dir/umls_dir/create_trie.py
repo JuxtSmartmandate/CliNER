@@ -1,5 +1,5 @@
 
-#database.py creates a .db file for performing umls searches.
+# database.py creates a .db file for performing umls searches.
 import marisa_trie
 import sys
 import os
@@ -18,6 +18,7 @@ trie_path = None
 success = False
 MRCON_TABLE = None
 
+
 @atexit.register
 def trie_cleanup():
 
@@ -27,7 +28,7 @@ def trie_cleanup():
 
     if success is False:
 
-        print >>sys.stderr, '\n\tError: trie was not created succesfully.\n'
+        print('\n\tError: trie was not created succesfully.\n', file=sys.stderr)
 
         if trie_path is not None:
 
@@ -62,22 +63,21 @@ def create_trie():
     except IOError:
         pass
 
+    print("\ncreating concept-trie")
 
-    print "\ncreating concept-trie"
-
-    #load data in files.
-    print "opening file"
+    # load data in files.
+    print("opening file")
     try:
         mrcon_path = os.path.join(umls_tables, 'MRCONSO.RRF')
-        MRCON_TABLE = open( mrcon_path , "r" )
+        MRCON_TABLE = open(mrcon_path, "r")
     except IOError:
-        print "\nNo file to use for creating MRCON table\n"
+        print("\nNo file to use for creating MRCON table\n")
         sys.exit()
 
-    print "inserting data into concept-trie"
+    print("inserting data into concept-trie")
 
-    #insert data onto database
-    print "inserting data"
+    # insert data onto database
+    print("inserting data")
     concepts = []
     for line in MRCON_TABLE:
 
@@ -86,7 +86,8 @@ def create_trie():
 
         assert len(line) == 18
 
-        if len(line) < 6: continue
+        if len(line) < 6:
+            continue
 
         concept = line[14]
 
@@ -96,13 +97,13 @@ def create_trie():
         except:
             continue
 
-        #print type(concept)
+        # print type(concept)
         concepts.append(concept)
 
-    print "creating trie"
+    print("creating trie")
     t = marisa_trie.Trie(concepts)
 
-    print "concept-trie created"
+    print("concept-trie created")
 
     # Pickle trie
 

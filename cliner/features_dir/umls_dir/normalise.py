@@ -10,6 +10,7 @@ from nltk.data import load
 pos_tagger = load(_POS_TAGGER)
 lemmatizer = WordNetLemmatizer()
 
+
 def get_wordnet_pos_tag(treebank_tag):
     if treebank_tag.startswith('J'):
         return wordnet.ADJ
@@ -21,6 +22,7 @@ def get_wordnet_pos_tag(treebank_tag):
         return wordnet.ADV
     else:
         return ''
+
 
 def preprocess(string):
 
@@ -44,6 +46,4 @@ def preprocess(string):
 
 if __name__ == "__main__":
 
-    print preprocess( "he was running very fast" )
-
-
+    print(preprocess("he was running very fast"))

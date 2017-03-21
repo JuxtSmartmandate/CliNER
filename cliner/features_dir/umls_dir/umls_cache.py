@@ -1,4 +1,4 @@
-import cPickle as pickle
+import pickle as pickle
 import sys
 import os
 
@@ -18,6 +18,7 @@ umls_tables = enabled['UMLS']
 sys.path.append((os.environ["CLINER_DIR"] + "/cliner/features_dir"))
 from utilities import load_pickled_obj
 
+
 class UmlsCache:
 
     # static class variables
@@ -34,13 +35,13 @@ class UmlsCache:
         except IOError:
             UmlsCache.cache = {}
 
-    def has_key(self , string):
-        return UmlsCache.cache.has_key( string )
+    def has_key(self, string):
+        return string in UmlsCache.cache
 
-    def add_map(self , string, mapping):
+    def add_map(self, string, mapping):
         UmlsCache.cache[string] = mapping
 
-    def get_map(self , string):
+    def get_map(self, string):
         return UmlsCache.cache[string]
 
     @staticmethod
@@ -49,5 +50,4 @@ class UmlsCache:
 
         if UmlsCache.filename is not None and UmlsCache.cache is not None:
 
-            pickle.dump(UmlsCache.cache, open(UmlsCache.filename,"wb"))
-
+            pickle.dump(UmlsCache.cache, open(UmlsCache.filename, "wb"))
